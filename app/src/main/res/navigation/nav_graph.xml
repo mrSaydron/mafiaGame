@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/startFragment">
+
+    <fragment
+        android:id="@+id/startFragment"
+        android:name="ru.mrak.mafiagame.StartFragment"
+        android:label="StartFragment"
+        tools:layout="@layout/fragment_start" />
+
+    <fragment
+        android:id="@+id/registrationFragment"
+        android:name="ru.mrak.mafiagame.RegistrationFragment"
+        android:label="RegistrationFragment"
+        tools:layout="@layout/fragment_registration" />
+
+    <fragment
+        android:id="@+id/gameFragment"
+        android:name="ru.mrak.mafiagame.GameFragment"
+        android:label="GameFragment"
+        tools:layout="@layout/fragment_game" />
+
+</navigation>
