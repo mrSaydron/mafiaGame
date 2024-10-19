@@ -109,24 +109,30 @@ class RegistrationFragment : Fragment() {
     }
 
     private fun assignRoles() {
-        playersList.shuffle() // Перемешиваем список игроков
-
-        val mafiaCount = 1 // Одна мафия для простоты
+        val mafiaCount = 1
         val detectiveCount = 1
         val doctorCount = 1
 
-        // Назначаем роли
         for (i in 0 until mafiaCount) {
-            playersList[i].role = Role.MAFIA
+            getNextRandomPlayer().role = Role.MAFIA
         }
-        for (i in mafiaCount until mafiaCount + detectiveCount) {
-            playersList[i].role = Role.DETECTIVE
+        for (i in 0 until detectiveCount) {
+            val player = getNextRandomPlayer()
+            player.role = Role.DETECTIVE
+            player.checkedForDetective = true
         }
-        for (i in mafiaCount + detectiveCount until mafiaCount + detectiveCount + doctorCount) {
-            playersList[i].role = Role.DOCTOR
+        for (i in 0 until doctorCount) {
+            getNextRandomPlayer().role = Role.DOCTOR
         }
-        // Остальные игроки — мирные жители
-        playersList.shuffle() // Перемешиваем список игроков
+    }
+
+    private fun getNextRandomPlayer(): Player {
+        var randomPlayer: Player?
+        do {
+            val randomIndex = (0 until playersList.size).random()
+            randomPlayer = playersList[randomIndex]
+        } while (randomPlayer!!.role != Role.CIVILIAN)
+        return randomPlayer
     }
 
 }

@@ -9,42 +9,40 @@ import androidx.recyclerview.widget.RecyclerView
 
 class VotingAdapter(
     private val players: MutableList<Player>,
-    var canRemovePlayer: Boolean = false,
-    private val onPlayerRemoved: (Player) -> Unit,
+    var onPlayerChoose: (Player) -> Unit,
 ) : RecyclerView.Adapter<VotingAdapter.PlayerViewHolder>() {
 
-    private val votes = mutableMapOf<Player, Int>()
+    var showType: ShowType = ShowType.CIVILIAN
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_player_vote, parent, false)
-        return PlayerViewHolder(view)
+        return PlayerViewHolder(view, this)
     }
 
     override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {
         val player = players[position]
         holder.bind(player)
         holder.itemView.setOnClickListener {
-            if (canRemovePlayer) {
-                onPlayerRemoved(player)
-                removePlayer(player)
-            }
+            onPlayerChoose(player)
         }
     }
 
     override fun getItemCount(): Int = players.size
 
-    // Метод для удаления игрока
-    private fun removePlayer(player: Player) {
-        val index = players.indexOf(player)
-        if (index != -1) {
-            players.removeAt(index)
-            notifyItemRemoved(index)
-        }
-    }
-
-    class PlayerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class PlayerViewHolder(
+        itemView: View,
+        private val adapter: VotingAdapter
+    ) : RecyclerView.ViewHolder(itemView) {
         private val playerNameText: TextView = itemView.findViewById(R.id.playerNameText)
         private val playerAvatar: ImageView = itemView.findViewById(R.id.playerAvatar)
+        private val playerRole: TextView = itemView.findViewById(R.id.playerRole)
+        private val playerIsAlive: TextView = itemView.findViewById(R.id.playerIsAlive)
 
         fun bind(player: Player) {
             playerNameText.text = player.name
@@ -53,6 +51,42 @@ class VotingAdapter(
             val context = playerAvatar.context
             val resourceId = context.resources.getIdentifier(player.avatar, "drawable", context.packageName)
             playerAvatar.setImageResource(resourceId)
+            playerRole.text = ""
+            when (adapter.showType) {
+                ShowType.CIVILIAN -> {}
+                ShowType.DETECTIVE -> {
+                    if (player.checkedForDetective) {
+                        playerRole.text = player.role.toString()
+                    }
+                }
+                ShowType.MAFIA -> {
+                    if (player.role == Role.MAFIA) {
+                        playerRole.text = player.role.toString()
+                    }
+                }
+                ShowType.DOCTOR -> {
+                    if (player.role == Role.DOCTOR) {
+                        playerRole.text = player.role.toString()
+                    }
+                }
+                ShowType.END_GAME -> {
+                    playerRole.text = player.role.toString()
+                }
+            }
+            if (!player.isAlive) {
+                playerRole.text = player.role.toString()
+            }
+//            playerIsAlive.text = if (player.isAlive) "Alive" else "Dead"
+            playerIsAlive.text = ""
+            itemView.setBackgroundColor(if (player.isAlive) 0xFFFFFFFF.toInt() else 0xFFC0C0C0.toInt())
         }
+    }
+
+    enum class ShowType {
+        CIVILIAN,
+        DETECTIVE,
+        MAFIA,
+        DOCTOR,
+        END_GAME,
     }
 }

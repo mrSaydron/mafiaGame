@@ -9,8 +9,10 @@ enum class Role {
 
 data class Player(
     val name: String,
-    val avatar: String, // пока что будет строкой, потом добавим выбор аватара
+    val avatar: String,
     var role: Role,
+    var isAlive: Boolean = true,
+    var checkedForDetective: Boolean = false,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",

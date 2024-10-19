@@ -1,19 +1,19 @@
 package ru.mrak.mafiagame
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -24,8 +24,11 @@ class GameFragment : Fragment() {
     private lateinit var nextPhaseButton: Button
     private lateinit var votingAdapter: VotingAdapter
     private lateinit var playersRecyclerView: RecyclerView
-    private var currentPhase: Phases = Phases.START_NIGHT
+    private var currentPhase: Phase = Phase.START_GAME
     private var isVotingPhase: Boolean = false
+    private var mafiaChosePlayer: Player? = null
+    private var doctorChosePlayer: Player? = null
+    private var citizenChosePlayer: Player? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,9 +43,7 @@ class GameFragment : Fragment() {
         // Получаем список игроков из предыдущего фрагмента
         playersList = arguments?.getParcelableArrayList("playersList") ?: mutableListOf()
 
-        votingAdapter = VotingAdapter(playersList) { votedPlayer ->
-            onPlayerRemoved(votedPlayer)
-        }
+        votingAdapter = VotingAdapter(playersList) {}
 
         playersRecyclerView.layoutManager = LinearLayoutManager(context)
         playersRecyclerView.adapter = votingAdapter
@@ -59,64 +60,205 @@ class GameFragment : Fragment() {
 
     private fun updateGamePhase() {
         when (currentPhase) {
-            Phases.START_NIGHT -> {
+            Phase.START_GAME -> {
+                Log.i("updateGamePhase", "START_GAME")
+                gameStatusText.text = "Начало игры"
+                nextPhaseButton.text = "Старт"
+                nextPhaseButton.visibility = View.VISIBLE
+            }
+            Phase.START_NIGHT -> {
+                Log.i("updateGamePhase", "START_NIGHT")
                 gameStatusText.text = "Ночь начинается, все засыпают..."
+                nextPhaseButton.text = "Старт"
+                nextPhaseButton.visibility = View.INVISIBLE
+
                 lifecycleScope.launch {
                     for (i in 5 downTo 1) {
                         gameStatusText.text = "Ночь начинается, все засыпают... $i"
                         delay(1000)
                     }
+                    nextPhase()
                 }
-                nextPhase()
             }
-            Phases.MAFIA -> {
-                gameStatusText.text = "Мафия просыпается"
+            Phase.MAFIA -> {
+                Log.i("updateGamePhase", "MAFIA")
+                gameStatusText.text = "Мафия просыпается, выбери жертву"
+                nextPhaseButton.text = "Дальше"
+                nextPhaseButton.visibility = View.INVISIBLE
+                votingAdapter.onPlayerChoose = { mafiaKillPlayer(it) }
+                votingAdapter.showType = VotingAdapter.ShowType.MAFIA
             }
-            Phases.END_MAFIA -> {
+            Phase.END_MAFIA -> {
+                Log.i("updateGamePhase", "END_MAFIA")
                 gameStatusText.text = "Мафия засыпает"
+                nextPhaseButton.visibility = View.INVISIBLE
+                votingAdapter.onPlayerChoose = {}
+
+                lifecycleScope.launch {
+                    for (i in 5 downTo 1) {
+                        gameStatusText.text = "Мафия засыпает... $i"
+                        delay(1000)
+                    }
+                    votingAdapter.showType = VotingAdapter.ShowType.CIVILIAN
+                    nextPhase()
+                }
             }
-            Phases.DOCTOR -> {
-                gameStatusText.text = "Доктор просыпается"
+            Phase.DOCTOR -> {
+                Log.i("updateGamePhase", "DOCTOR")
+                gameStatusText.text = "Доктор просыпается. Выбери кого вылечить"
+                nextPhaseButton.visibility = View.INVISIBLE
+                votingAdapter.onPlayerChoose = { doctorTreatPlayer(it) }
+                votingAdapter.showType = VotingAdapter.ShowType.DOCTOR
             }
-            Phases.END_DOCTOR -> {
+            Phase.END_DOCTOR -> {
+                Log.i("updateGamePhase", "END_DOCTOR")
                 gameStatusText.text = "Доктор засыпает"
+                nextPhaseButton.visibility = View.INVISIBLE
+                votingAdapter.onPlayerChoose = {}
+
+                lifecycleScope.launch {
+                    for (i in 5 downTo 1) {
+                        gameStatusText.text = "Доктор засыпает... $i"
+                        delay(1000)
+                    }
+                    votingAdapter.showType = VotingAdapter.ShowType.CIVILIAN
+                    nextPhase()
+                }
             }
-            Phases.DETECTIVE -> {
+            Phase.DETECTIVE -> {
+                Log.i("updateGamePhase", "DETECTIVE")
                 gameStatusText.text = "Детектив просыпается"
+                nextPhaseButton.visibility = View.INVISIBLE
+                votingAdapter.onPlayerChoose = { detectiveCheckPlayer(it) }
+                votingAdapter.showType = VotingAdapter.ShowType.DETECTIVE
+
+                if (getNotCheckedDetectiveCount() == 0) {
+                    nextPhaseButton.visibility = View.VISIBLE
+                    nextPhaseButton.text = "Дальше"
+                }
             }
-            Phases.END_DETECTIVE -> {
+            Phase.END_DETECTIVE -> {
+                Log.i("updateGamePhase", "END_DETECTIVE")
+                votingAdapter.onPlayerChoose = {}
+
                 gameStatusText.text = "Детектив засыпает"
+                lifecycleScope.launch {
+                    for (i in 5 downTo 1) {
+                        gameStatusText.text = "Детектив засыпает... $i"
+                        delay(1000)
+                    }
+
+                    votingAdapter.showType = VotingAdapter.ShowType.CIVILIAN
+                    nextPhase()
+                }
             }
-            Phases.NEWS -> {
-                gameStatusText.text = "Наступил день, все просыпаются. Ночью случилось..."
+            Phase.NEWS -> {
+                Log.i("updateGamePhase", "NEWS")
+                val newsText = if (mafiaChosePlayer == doctorChosePlayer) {
+                    "Ночью мафия совершила покушение на ${mafiaChosePlayer?.name}, но доктор успел вовремя и спас его"
+                } else {
+                    mafiaChosePlayer?.isAlive = false
+                    "Ночью жертвой мафии стал ${mafiaChosePlayer?.name}. Он оставил предсмертное сообщение:"
+                }
+                gameStatusText.text = "Наступил день, все просыпаются. $newsText"
+
+                votingAdapter.notifyDataSetChanged()
+                nextPhaseButton.text = "Дальше"
+                nextPhaseButton.visibility = View.VISIBLE
+
+                mafiaChosePlayer = null
+                doctorChosePlayer = null
+
+                if (!checkWinCondition()) {
+                    lifecycleScope.launch {
+                        delay(10000)
+                        if (currentPhase == Phase.NEWS) {
+                            nextPhase()
+                        }
+                    }
+                }
+
             }
-            Phases.VOTE -> {
+            Phase.VOTE -> {
+                Log.i("updateGamePhase", "VOTE")
                 gameStatusText.text = "Голосование"
-                isVotingPhase = true
-                nextPhaseButton.visibility = View.GONE
-                votingAdapter.canRemovePlayer = true
+                nextPhaseButton.visibility = View.INVISIBLE
+                votingAdapter.onPlayerChoose = { voteForPlayer(it) }
+            }
+            Phase.AFTER_VOTE -> {
+                Log.i("updateGamePhase", "AFTER_VOTE")
+                gameStatusText.text = "Горожане выбрали ${citizenChosePlayer?.name.toString()}. Ваше последнее слово:"
+                nextPhaseButton.visibility = View.VISIBLE
+                nextPhaseButton.text = "Дальше"
+            }
+            Phase.END_GAME -> {
+                Log.i("updateGamePhase", "END_GAME")
+                gameStatusText.text = "Результат игры"
+                nextPhaseButton.text = "Новая игра"
+                nextPhaseButton.visibility = View.VISIBLE
+                votingAdapter.onPlayerChoose = {}
+                nextPhaseButton.setOnClickListener { findNavController().navigate(R.id.startFragment) }
+                votingAdapter.showType = VotingAdapter.ShowType.END_GAME
+
+                if (getMafiaCount() == 0) {
+                    gameStatusText.text = "Горожане победили"
+                } else if (getMafiaCount() >= getCivilianCount()) {
+                    gameStatusText.text = "Мафия победила"
+                }
             }
         }
     }
 
-    private fun nextPhase() {
-        val n = if (currentPhase.ordinal == Phases.entries.size - 1) 0 else currentPhase.ordinal + 1
-        currentPhase = Phases.entries.toTypedArray()[n]
-        lifecycleScope.launch(Dispatchers.Default) { updateGamePhase() }
+    private fun doctorTreatPlayer(player: Player) {
+        if (!player.isAlive) {
+            Toast.makeText(activity, "Этот игрок уже мертв", Toast.LENGTH_SHORT).show()
+        } else {
+            doctorChosePlayer = player
+            nextPhase()
+        }
     }
 
-    // Когда игрок удален
-    private fun onPlayerRemoved(player: Player) {
-        // Убираем игрока из списка активных
-        playersList.remove(player)
-        gameStatusText.text = "${player.name} (${player.role}) has been eliminated!"
-        checkWinCondition()
-        isVotingPhase = false
-        votingAdapter.notifyDataSetChanged()
-        nextPhaseButton.visibility = View.VISIBLE
-//        currentPhase = 0
-        votingAdapter.canRemovePlayer = false
-        updateGamePhase()
+    private fun detectiveCheckPlayer(player: Player) {
+        if (player.role == Role.DETECTIVE) {
+            Toast.makeText(activity, "Незачем проверять самого себя", Toast.LENGTH_SHORT).show()
+        } else if (!player.isAlive) {
+            Toast.makeText(activity, "Этот игрок мертв", Toast.LENGTH_SHORT).show()
+        } else if (player.checkedForDetective) {
+            Toast.makeText(activity, "Этот игрок уже был проверен", Toast.LENGTH_SHORT).show()
+        } else {
+            player.checkedForDetective = true
+            votingAdapter.notifyDataSetChanged()
+            nextPhase()
+        }
+    }
+
+    private fun nextPhase() {
+        do {
+            currentPhase = currentPhase.nextPhase!!
+        } while (!currentPhase.canUse(playersList))
+        lifecycleScope.launch() { updateGamePhase() }
+    }
+
+    private fun voteForPlayer(player: Player) {
+        if (!player.isAlive) {
+            Toast.makeText(activity, "Этот игрок уже мёртв", Toast.LENGTH_SHORT).show()
+        } else {
+            player.isAlive = false
+            citizenChosePlayer = player
+            votingAdapter.notifyDataSetChanged()
+            if (!checkWinCondition()) {
+                nextPhase()
+            }
+        }
+    }
+
+    private fun mafiaKillPlayer(player: Player) {
+        if (getMafiaCount() == 1 && player.role == Role.MAFIA) {
+            Toast.makeText(activity, "Единственный мафиозий не может убить сам себя", Toast.LENGTH_SHORT).show()
+        } else {
+            mafiaChosePlayer = player
+            nextPhase()
+        }
     }
 
     private fun showEndGameDialog(message: String) {
@@ -124,32 +266,59 @@ class GameFragment : Fragment() {
             .setTitle("Game Over")
             .setMessage(message)
             .setPositiveButton("OK") { _, _ ->
-                // После окончания игры можно начать новую или вернуться в главное меню
-                findNavController().navigate(R.id.registrationFragment)
+                findNavController().navigate(R.id.startFragment)
             }
             .show()
     }
 
-    private fun checkWinCondition() {
-        val mafiaCount = playersList.count { it.role == Role.MAFIA }
-        val civiliansCount = playersList.size - mafiaCount
+    private fun checkWinCondition(): Boolean {
+        if (getMafiaCount() == 0 || getMafiaCount() >= getCivilianCount()) {
+            currentPhase = Phase.END_GAME
+            updateGamePhase()
+            return true
+        }
+        return false
+    }
 
-        if (mafiaCount == 0) {
-            showEndGameDialog("Civilians win!")
-        } else if (mafiaCount >= civiliansCount) {
-            showEndGameDialog("Mafia wins!")
+    private fun getMafiaCount() = playersList.count { it.role == Role.MAFIA && it.isAlive }
+    private fun getCivilianCount() = playersList.count { it.role != Role.MAFIA && it.isAlive }
+    private fun getDoctorCount() = playersList.count { it.role == Role.DOCTOR && it.isAlive }
+    private fun getDetectiveCount() = playersList.count { it.role == Role.DETECTIVE && it.isAlive }
+    private fun getNotCheckedDetectiveCount() = playersList.count { it.role != Role.DETECTIVE && it.isAlive && !it.checkedForDetective }
+
+    enum class Phase(
+        val canUse: (List<Player>) -> Boolean,
+        var nextPhase: Phase? = null,
+    ) {
+        START_GAME({ true }),
+        START_NIGHT({ true }),
+        MAFIA({ true }),
+        END_MAFIA({ true }),
+        DOCTOR({ it.count { player -> player.role == Role.DOCTOR && player.isAlive } > 0 }),
+        END_DOCTOR({ it.count { player -> player.role == Role.DOCTOR && player.isAlive } > 0 }),
+        DETECTIVE({ it.count { player -> player.role == Role.DETECTIVE && player.isAlive } > 0 }),
+        END_DETECTIVE({ it.count { player -> player.role == Role.DETECTIVE && player.isAlive } > 0 }),
+        NEWS({ true }),
+        VOTE({ true }),
+        AFTER_VOTE({ true }),
+        END_GAME({ false })
+        ;
+
+        companion object {
+            init {
+                START_GAME.nextPhase = START_NIGHT
+                START_NIGHT.nextPhase = MAFIA
+                MAFIA.nextPhase = END_MAFIA
+                END_MAFIA.nextPhase = DOCTOR
+                DOCTOR.nextPhase = END_DOCTOR
+                END_DOCTOR.nextPhase = DETECTIVE
+                DETECTIVE.nextPhase = END_DETECTIVE
+                END_DETECTIVE.nextPhase = NEWS
+                NEWS.nextPhase = VOTE
+                VOTE.nextPhase = AFTER_VOTE
+                AFTER_VOTE.nextPhase = START_NIGHT
+            }
         }
     }
 
-    enum class Phases {
-        START_NIGHT,
-        MAFIA,
-        END_MAFIA,
-        DOCTOR,
-        END_DOCTOR,
-        DETECTIVE,
-        END_DETECTIVE,
-        NEWS,
-        VOTE,
-    }
 }

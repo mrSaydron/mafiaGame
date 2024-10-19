@@ -19,5 +19,24 @@
         android:layout_height="wrap_content"
         android:text="Player Name"
         android:textSize="18sp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/playerIsAlive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alive"
+        android:textSize="18sp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="16dp" />
+
+    <TextView
+        android:id="@+id/playerRole"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Role"
+        android:textSize="18sp"
         android:layout_gravity="center_vertical" />
+
 </LinearLayout>
