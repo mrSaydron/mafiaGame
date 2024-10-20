@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
@@ -15,12 +16,16 @@ class PlayerAdapter(
     class PlayerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val playerName: TextView = itemView.findViewById(R.id.playerNameText)
         private val removeButton: Button = itemView.findViewById(R.id.removePlayerButton)
+        private val playerAvatar: ImageView = itemView.findViewById(R.id.playerAvatar)
 
         fun bind(player: Player, onRemovePlayer: (Player) -> Unit) {
             playerName.text = player.name
             removeButton.setOnClickListener {
                 onRemovePlayer(player)
             }
+            val context = playerAvatar.context
+            val resourceId = context.resources.getIdentifier(player.avatar, "drawable", context.packageName)
+            playerAvatar.setImageResource(resourceId)
         }
     }
 

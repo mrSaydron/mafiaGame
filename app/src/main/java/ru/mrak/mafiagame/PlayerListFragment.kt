@@ -19,8 +19,13 @@ class PlayerListFragment : Fragment() {
 
     private lateinit var playerAdapter: PlayerAdapter
     private lateinit var playerRecyclerView: RecyclerView
+
     private lateinit var addPlayerButton: Button
     private lateinit var startGameButton: Button
+
+    private lateinit var roleAdapter: RoleAdapter
+    private lateinit var rolesRecyclerView: RecyclerView
+
 
     private val players = mutableListOf<Player>()
     private val avatars = listOf("avatar_1", "avatar_2", "avatar_3", "avatar_4", "avatar_5", "avatar_6", "avatar_7")
@@ -36,6 +41,12 @@ class PlayerListFragment : Fragment() {
         playerRecyclerView = view.findViewById(R.id.playerRecyclerView)
         playerRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         playerRecyclerView.adapter = playerAdapter
+
+        roleAdapter = RoleAdapter()
+
+        rolesRecyclerView = view.findViewById(R.id.rolesRecyclerView)
+        rolesRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        rolesRecyclerView.adapter = roleAdapter
 
         addPlayerButton = view.findViewById(R.id.addPlayerButton)
         startGameButton = view.findViewById(R.id.startGameButton)
@@ -60,6 +71,7 @@ class PlayerListFragment : Fragment() {
     private fun addPlayer(player: Player) {
         players.add(player)
         playerAdapter.notifyItemInserted(players.size - 1)
+        roleAdapter.playerCount = players.size
         checkStartGameCondition()
     }
 
@@ -106,20 +118,20 @@ class PlayerListFragment : Fragment() {
     }
 
     private fun assignRoles() {
-        val mafiaCount = 1
-        val detectiveCount = 1
-        val doctorCount = 1
+        val mafiaCount = roleAdapter.roles.find { it.role == RoleType.MAFIA }!!.count
+        val detectiveCount = roleAdapter.roles.find { it.role == RoleType.DETECTIVE }!!.count
+        val doctorCount = roleAdapter.roles.find { it.role == RoleType.DOCTOR }!!.count
 
         for (i in 0 until mafiaCount) {
-            getNextRandomPlayer().role = Role.MAFIA
+            getNextRandomPlayer().role = RoleType.MAFIA
         }
         for (i in 0 until detectiveCount) {
             val player = getNextRandomPlayer()
-            player.role = Role.DETECTIVE
+            player.role = RoleType.DETECTIVE
             player.checkedForDetective = true
         }
         for (i in 0 until doctorCount) {
-            getNextRandomPlayer().role = Role.DOCTOR
+            getNextRandomPlayer().role = RoleType.DOCTOR
         }
     }
 
@@ -128,7 +140,7 @@ class PlayerListFragment : Fragment() {
         do {
             val randomIndex = (0 until players.size).random()
             randomPlayer = players[randomIndex]
-        } while (randomPlayer!!.role != Role.CIVILIAN)
+        } while (randomPlayer!!.role != RoleType.CIVILIAN)
         return randomPlayer
     }
 }

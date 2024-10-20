@@ -50,7 +50,7 @@ class RegistrationFragment : Fragment() {
 
             if (playerName.isNotEmpty()) {
                 Log.i("RegistrationFragment", "playerName: $playerName")
-                playersList.add(Player(playerName, selectedAvatar, Role.CIVILIAN)) // Пока роль как мирный житель
+                playersList.add(Player(playerName, selectedAvatar, RoleType.CIVILIAN)) // Пока роль как мирный житель
                 currentPlayerIndex++
 
                 if (currentPlayerIndex < numberOfPlayers) {
@@ -79,15 +79,15 @@ class RegistrationFragment : Fragment() {
         val doctorCount = 1
 
         for (i in 0 until mafiaCount) {
-            getNextRandomPlayer().role = Role.MAFIA
+            getNextRandomPlayer().role = RoleType.MAFIA
         }
         for (i in 0 until detectiveCount) {
             val player = getNextRandomPlayer()
-            player.role = Role.DETECTIVE
+            player.role = RoleType.DETECTIVE
             player.checkedForDetective = true
         }
         for (i in 0 until doctorCount) {
-            getNextRandomPlayer().role = Role.DOCTOR
+            getNextRandomPlayer().role = RoleType.DOCTOR
         }
     }
 
@@ -96,7 +96,7 @@ class RegistrationFragment : Fragment() {
         do {
             val randomIndex = (0 until playersList.size).random()
             randomPlayer = playersList[randomIndex]
-        } while (randomPlayer!!.role != Role.CIVILIAN)
+        } while (randomPlayer!!.role != RoleType.CIVILIAN)
         return randomPlayer
     }
 

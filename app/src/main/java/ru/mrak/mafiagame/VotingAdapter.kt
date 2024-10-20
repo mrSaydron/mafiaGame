@@ -60,12 +60,12 @@ class VotingAdapter(
                     }
                 }
                 ShowType.MAFIA -> {
-                    if (player.role == Role.MAFIA) {
+                    if (player.role == RoleType.MAFIA) {
                         playerRole.text = player.role.toString()
                     }
                 }
                 ShowType.DOCTOR -> {
-                    if (player.role == Role.DOCTOR) {
+                    if (player.role == RoleType.DOCTOR) {
                         playerRole.text = player.role.toString()
                     }
                 }

@@ -219,7 +219,7 @@ class GameFragment : Fragment() {
     }
 
     private fun detectiveCheckPlayer(player: Player) {
-        if (player.role == Role.DETECTIVE) {
+        if (player.role == RoleType.DETECTIVE) {
             Toast.makeText(activity, "Незачем проверять самого себя", Toast.LENGTH_SHORT).show()
         } else if (!player.isAlive) {
             Toast.makeText(activity, "Этот игрок мертв", Toast.LENGTH_SHORT).show()
@@ -253,7 +253,7 @@ class GameFragment : Fragment() {
     }
 
     private fun mafiaKillPlayer(player: Player) {
-        if (getMafiaCount() == 1 && player.role == Role.MAFIA) {
+        if (getMafiaCount() == 1 && player.role == RoleType.MAFIA) {
             Toast.makeText(activity, "Единственный мафиозий не может убить сам себя", Toast.LENGTH_SHORT).show()
         } else {
             mafiaChosePlayer = player
@@ -280,11 +280,11 @@ class GameFragment : Fragment() {
         return false
     }
 
-    private fun getMafiaCount() = playersList.count { it.role == Role.MAFIA && it.isAlive }
-    private fun getCivilianCount() = playersList.count { it.role != Role.MAFIA && it.isAlive }
-    private fun getDoctorCount() = playersList.count { it.role == Role.DOCTOR && it.isAlive }
-    private fun getDetectiveCount() = playersList.count { it.role == Role.DETECTIVE && it.isAlive }
-    private fun getNotCheckedDetectiveCount() = playersList.count { it.role != Role.DETECTIVE && it.isAlive && !it.checkedForDetective }
+    private fun getMafiaCount() = playersList.count { it.role == RoleType.MAFIA && it.isAlive }
+    private fun getCivilianCount() = playersList.count { it.role != RoleType.MAFIA && it.isAlive }
+    private fun getDoctorCount() = playersList.count { it.role == RoleType.DOCTOR && it.isAlive }
+    private fun getDetectiveCount() = playersList.count { it.role == RoleType.DETECTIVE && it.isAlive }
+    private fun getNotCheckedDetectiveCount() = playersList.count { it.role != RoleType.DETECTIVE && it.isAlive && !it.checkedForDetective }
 
     enum class Phase(
         val canUse: (List<Player>) -> Boolean,
@@ -292,12 +292,12 @@ class GameFragment : Fragment() {
     ) {
         START_GAME({ false }),
         START_NIGHT({ true }),
-        MAFIA({ it.count{ player -> player.role == Role.MAFIA && player.isAlive } > 0 }),
-        END_MAFIA({ it.count{ player -> player.role == Role.MAFIA && player.isAlive } > 0 }),
-        DOCTOR({ it.count { player -> player.role == Role.DOCTOR && player.isAlive } > 0 }),
-        END_DOCTOR({ it.count { player -> player.role == Role.DOCTOR && player.isAlive } > 0 }),
-        DETECTIVE({ it.count { player -> player.role == Role.DETECTIVE && player.isAlive } > 0 }),
-        END_DETECTIVE({ it.count { player -> player.role == Role.DETECTIVE && player.isAlive } > 0 }),
+        MAFIA({ it.count{ player -> player.role == RoleType.MAFIA && player.isAlive } > 0 }),
+        END_MAFIA({ it.count{ player -> player.role == RoleType.MAFIA && player.isAlive } > 0 }),
+        DOCTOR({ it.count { player -> player.role == RoleType.DOCTOR && player.isAlive } > 0 }),
+        END_DOCTOR({ it.count { player -> player.role == RoleType.DOCTOR && player.isAlive } > 0 }),
+        DETECTIVE({ it.count { player -> player.role == RoleType.DETECTIVE && player.isAlive } > 0 }),
+        END_DETECTIVE({ it.count { player -> player.role == RoleType.DETECTIVE && player.isAlive } > 0 }),
         NEWS({ true }),
         VOTE({ true }),
         AFTER_VOTE({ true }),

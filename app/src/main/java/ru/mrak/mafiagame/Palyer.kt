@@ -3,21 +3,17 @@ package ru.mrak.mafiagame
 import android.os.Parcel
 import android.os.Parcelable
 
-enum class Role {
-    MAFIA, DETECTIVE, DOCTOR, CIVILIAN
-}
-
 data class Player(
     val name: String,
     val avatar: String,
-    var role: Role = Role.CIVILIAN,
+    var role: RoleType = RoleType.CIVILIAN,
     var isAlive: Boolean = true,
     var checkedForDetective: Boolean = false,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
-        Role.valueOf(parcel.readString() ?: Role.CIVILIAN.name)
+        RoleType.valueOf(parcel.readString() ?: RoleType.CIVILIAN.name)
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
