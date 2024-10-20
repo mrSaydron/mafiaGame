@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/startFragment">
+    app:startDestination="@id/playerListFragment">
 
     <fragment
         android:id="@+id/startFragment"
@@ -15,6 +15,12 @@
         android:name="ru.mrak.mafiagame.RegistrationFragment"
         android:label="RegistrationFragment"
         tools:layout="@layout/fragment_registration" />
+
+    <fragment
+        android:id="@+id/playerListFragment"
+        android:name="ru.mrak.mafiagame.PlayerListFragment"
+        android:label="PlayerListFragment"
+        tools:layout="@layout/fragment_player_list" />
 
     <fragment
         android:id="@+id/gameFragment"

@@ -24,41 +24,6 @@ class RegistrationFragment : Fragment() {
     private lateinit var avatarSpinner: Spinner
     private val avatars = listOf("avatar_1", "avatar_2", "avatar_3", "avatar_4", "avatar_5", "avatar_6", "avatar_7")
 
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//
-//        avatarSpinner = view.findViewById(R.id.avatarSpinner)
-//
-//        // Настройка Spinner для выбора аватара
-//        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, avatars)
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        avatarSpinner.adapter = adapter
-//
-//        nextButton.setOnClickListener {
-//            val playerName = playerNameInput.text.toString()
-//            val selectedAvatar = avatarSpinner.selectedItem.toString()
-//
-//            if (playerName.isNotEmpty()) {
-//                playersList.add(Player(playerName, selectedAvatar, Role.CIVILIAN))
-//                currentPlayerIndex++
-//
-//                if (currentPlayerIndex < numberOfPlayers) {
-//                    playerNameInput.text.clear()
-//                    Toast.makeText(activity, "Enter name for player ${currentPlayerIndex + 1}", Toast.LENGTH_SHORT).show()
-//                } else {
-//                    assignRoles()
-//                    val bundle = Bundle().apply {
-//                        putParcelableArrayList("playersList", ArrayList(playersList))
-//                    }
-//                    Navigation.findNavController(view)
-//                        .navigate(R.id.action_registrationFragment_to_gameFragment, bundle)
-//                }
-//            } else {
-//                Toast.makeText(activity, "Please enter a name", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

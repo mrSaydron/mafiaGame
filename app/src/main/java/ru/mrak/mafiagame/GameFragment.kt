@@ -24,8 +24,8 @@ class GameFragment : Fragment() {
     private lateinit var nextPhaseButton: Button
     private lateinit var votingAdapter: VotingAdapter
     private lateinit var playersRecyclerView: RecyclerView
-    private var currentPhase: Phase = Phase.START_GAME
-    private var isVotingPhase: Boolean = false
+
+    private var currentPhase: Phase = Phase.START_NIGHT
     private var mafiaChosePlayer: Player? = null
     private var doctorChosePlayer: Player? = null
     private var citizenChosePlayer: Player? = null
@@ -197,7 +197,7 @@ class GameFragment : Fragment() {
                 nextPhaseButton.text = "Новая игра"
                 nextPhaseButton.visibility = View.VISIBLE
                 votingAdapter.onPlayerChoose = {}
-                nextPhaseButton.setOnClickListener { findNavController().navigate(R.id.startFragment) }
+                nextPhaseButton.setOnClickListener { findNavController().navigate(R.id.playerListFragment) }
                 votingAdapter.showType = VotingAdapter.ShowType.END_GAME
 
                 if (getMafiaCount() == 0) {
@@ -290,10 +290,10 @@ class GameFragment : Fragment() {
         val canUse: (List<Player>) -> Boolean,
         var nextPhase: Phase? = null,
     ) {
-        START_GAME({ true }),
+        START_GAME({ false }),
         START_NIGHT({ true }),
-        MAFIA({ true }),
-        END_MAFIA({ true }),
+        MAFIA({ it.count{ player -> player.role == Role.MAFIA && player.isAlive } > 0 }),
+        END_MAFIA({ it.count{ player -> player.role == Role.MAFIA && player.isAlive } > 0 }),
         DOCTOR({ it.count { player -> player.role == Role.DOCTOR && player.isAlive } > 0 }),
         END_DOCTOR({ it.count { player -> player.role == Role.DOCTOR && player.isAlive } > 0 }),
         DETECTIVE({ it.count { player -> player.role == Role.DETECTIVE && player.isAlive } > 0 }),

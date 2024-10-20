@@ -10,7 +10,7 @@ enum class Role {
 data class Player(
     val name: String,
     val avatar: String,
-    var role: Role,
+    var role: Role = Role.CIVILIAN,
     var isAlive: Boolean = true,
     var checkedForDetective: Boolean = false,
 ) : Parcelable {
