@@ -1,16 +1,20 @@
 package ru.mrak.mafiagame
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlin.math.max
 
-class RoleAdapter : RecyclerView.Adapter<RoleAdapter.RoleViewHolder>() {
+class RoleAdapter(private val parent: Fragment) : RecyclerView.Adapter<RoleAdapter.RoleViewHolder>() {
 
-    val roles: List<Role> = RoleType.entries.map { Role(it, 0) }
+    var roles: List<Role> = RoleType.entries.map { Role(it, 0) }
     var playerCount: Int = 0
         set(value) {
             field = value
@@ -36,6 +40,26 @@ class RoleAdapter : RecyclerView.Adapter<RoleAdapter.RoleViewHolder>() {
             }
             notifyDataSetChanged()
         }
+
+    fun saveRoles() {
+        val sharedPreferences = parent.requireContext().getSharedPreferences("mafia_game", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+        val jsonRoles = gson.toJson(roles)
+        editor.putString("roles", jsonRoles)
+        editor.apply()
+    }
+
+    fun loadRoles() {
+        val sharedPreferences = parent.requireContext().getSharedPreferences("mafia_game", Context.MODE_PRIVATE)
+        val jsonRoles = sharedPreferences.getString("roles", null)
+        if (jsonRoles != null) {
+            val gson = Gson()
+            val type = object : TypeToken<List<Role>>() {}.type
+            roles = gson.fromJson(jsonRoles, type)
+            notifyDataSetChanged()
+        }
+    }
 
     private fun getRolesCount() = roles.sumOf { it.count }
 

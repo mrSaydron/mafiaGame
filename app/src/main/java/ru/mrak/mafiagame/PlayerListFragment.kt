@@ -1,5 +1,6 @@
 package ru.mrak.mafiagame
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -14,6 +15,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class PlayerListFragment : Fragment() {
 
@@ -42,7 +45,7 @@ class PlayerListFragment : Fragment() {
         playerRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         playerRecyclerView.adapter = playerAdapter
 
-        roleAdapter = RoleAdapter()
+        roleAdapter = RoleAdapter(this)
 
         rolesRecyclerView = view.findViewById(R.id.rolesRecyclerView)
         rolesRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -56,12 +59,18 @@ class PlayerListFragment : Fragment() {
         }
 
         startGameButton.setOnClickListener {
+            savePlayers()
+            roleAdapter.saveRoles()
+
             assignRoles()
             val bundle = Bundle().apply {
                 putParcelableArrayList("playersList", ArrayList(players))
             }
             Navigation.findNavController(view).navigate(R.id.gameFragment, bundle)
         }
+
+        loadPlayers()
+        roleAdapter.loadRoles()
 
         return view
     }
@@ -85,10 +94,16 @@ class PlayerListFragment : Fragment() {
         }
     }
 
+    private fun removeAllPlayers() {
+        playerAdapter.notifyItemRangeRemoved(0, players.size)
+        players.clear()
+        roleAdapter.playerCount = 0
+        checkStartGameCondition()
+    }
+
     // Проверяем количество игроков для активации кнопки "Начать игру"
     private fun checkStartGameCondition() {
-        val startGameButton = view?.findViewById<Button>(R.id.startGameButton)
-        startGameButton?.isEnabled = players.size >= 4
+        startGameButton.isEnabled = players.size >= 4
     }
 
     // Диалог для добавления игрока
@@ -143,4 +158,32 @@ class PlayerListFragment : Fragment() {
         } while (randomPlayer!!.role != RoleType.CIVILIAN)
         return randomPlayer
     }
+
+    private fun savePlayers() {
+        val sharedPreferences = requireContext().getSharedPreferences("mafia_game", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        val playersToSave: List<Player> = players.map { Player(it.name, it.avatar) }
+
+        val gson = Gson()
+        val jsonPlayers = gson.toJson(playersToSave)
+
+        editor.putString("players", jsonPlayers)
+        editor.apply()
+    }
+
+    private fun loadPlayers() {
+        val sharedPreferences = requireContext().getSharedPreferences("mafia_game", Context.MODE_PRIVATE)
+        val jsonPlayers = sharedPreferences.getString("players", null)
+
+        if (jsonPlayers != null) {
+            val gson = Gson()
+            val type = object : TypeToken<List<Player>>() {}.type
+            removeAllPlayers()
+            gson.fromJson<List<Player>>(jsonPlayers, type).forEach {
+                addPlayer(it)
+            }
+        }
+    }
+
 }

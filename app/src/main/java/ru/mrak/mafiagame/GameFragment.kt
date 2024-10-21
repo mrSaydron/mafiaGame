@@ -261,16 +261,6 @@ class GameFragment : Fragment() {
         }
     }
 
-    private fun showEndGameDialog(message: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Game Over")
-            .setMessage(message)
-            .setPositiveButton("OK") { _, _ ->
-                findNavController().navigate(R.id.startFragment)
-            }
-            .show()
-    }
-
     private fun checkWinCondition(): Boolean {
         if (getMafiaCount() == 0 || getMafiaCount() >= getCivilianCount()) {
             currentPhase = Phase.END_GAME

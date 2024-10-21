@@ -5,18 +5,6 @@
     app:startDestination="@id/playerListFragment">
 
     <fragment
-        android:id="@+id/startFragment"
-        android:name="ru.mrak.mafiagame.StartFragment"
-        android:label="StartFragment"
-        tools:layout="@layout/fragment_start" />
-
-    <fragment
-        android:id="@+id/registrationFragment"
-        android:name="ru.mrak.mafiagame.RegistrationFragment"
-        android:label="RegistrationFragment"
-        tools:layout="@layout/fragment_registration" />
-
-    <fragment
         android:id="@+id/playerListFragment"
         android:name="ru.mrak.mafiagame.PlayerListFragment"
         android:label="PlayerListFragment"
