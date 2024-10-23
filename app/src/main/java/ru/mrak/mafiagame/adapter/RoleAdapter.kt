@@ -1,4 +1,4 @@
-package ru.mrak.mafiagame
+package ru.mrak.mafiagame.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -10,6 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import ru.mrak.mafiagame.R
+import ru.mrak.mafiagame.Role
+import ru.mrak.mafiagame.RoleType
 import kotlin.math.max
 
 class RoleAdapter(private val parent: Fragment) : RecyclerView.Adapter<RoleAdapter.RoleViewHolder>() {

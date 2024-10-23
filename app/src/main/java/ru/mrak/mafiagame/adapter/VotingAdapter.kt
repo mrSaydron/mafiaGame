@@ -1,4 +1,4 @@
-package ru.mrak.mafiagame
+package ru.mrak.mafiagame.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,6 +6,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import ru.mrak.mafiagame.Player
+import ru.mrak.mafiagame.R
+import ru.mrak.mafiagame.RoleType
 
 class VotingAdapter(
     private val players: MutableList<Player>,

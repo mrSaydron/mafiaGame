@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Кнопка для возврата на экран игроков -->
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back" />
+
+    <!-- Настройки игры -->
+    <TextView
+        android:text="Game Settings"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"/>
+
+    <Spinner
+        android:id="@+id/languageSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/languages_array" />
+
+    <Switch
+        android:id="@+id/doctorSelfHealSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Doctor can heal self" />
+
+    <Switch
+        android:id="@+id/doctorHealSameSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Doctor can heal same player consecutively" />
+
+    <Switch
+        android:id="@+id/revealRoleSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reveal role after death" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        />
+
+    <!-- Информация об авторе -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Created by [Your Name]" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Contact: your.email@example.com" />
+
+</LinearLayout>

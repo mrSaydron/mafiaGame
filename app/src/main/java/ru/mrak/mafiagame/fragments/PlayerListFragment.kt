@@ -1,4 +1,4 @@
-package ru.mrak.mafiagame
+package ru.mrak.mafiagame.fragments
 
 import android.content.Context
 import android.os.Bundle
@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -17,6 +18,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import ru.mrak.mafiagame.Player
+import ru.mrak.mafiagame.adapter.PlayerAdapter
+import ru.mrak.mafiagame.R
+import ru.mrak.mafiagame.adapter.RoleAdapter
+import ru.mrak.mafiagame.RoleType
 
 class PlayerListFragment : Fragment() {
 
@@ -25,6 +31,7 @@ class PlayerListFragment : Fragment() {
 
     private lateinit var addPlayerButton: Button
     private lateinit var startGameButton: Button
+    private lateinit var settingsButton: ImageView
 
     private lateinit var roleAdapter: RoleAdapter
     private lateinit var rolesRecyclerView: RecyclerView
@@ -53,6 +60,7 @@ class PlayerListFragment : Fragment() {
 
         addPlayerButton = view.findViewById(R.id.addPlayerButton)
         startGameButton = view.findViewById(R.id.startGameButton)
+        settingsButton = view.findViewById(R.id.settingsButton)
 
         addPlayerButton.setOnClickListener {
             showAddPlayerDialog()
@@ -67,6 +75,10 @@ class PlayerListFragment : Fragment() {
                 putParcelableArrayList("playersList", ArrayList(players))
             }
             Navigation.findNavController(view).navigate(R.id.gameFragment, bundle)
+        }
+
+        settingsButton.setOnClickListener {
+            Navigation.findNavController(view).navigate(R.id.settingsFragment)
         }
 
         loadPlayers()

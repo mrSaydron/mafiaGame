@@ -1,7 +1,6 @@
-package ru.mrak.mafiagame
+package ru.mrak.mafiagame.fragments
 
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,15 +9,18 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ru.mrak.mafiagame.Phase
+import ru.mrak.mafiagame.Player
+import ru.mrak.mafiagame.R
+import ru.mrak.mafiagame.RoleType
+import ru.mrak.mafiagame.adapter.VotingAdapter
 import ru.mrak.mafiagame.service.SpeechService
-import java.util.Locale
 
 class GameFragment : Fragment() {
 
