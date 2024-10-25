@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import ru.mrak.mafiagame.R
 import ru.mrak.mafiagame.adapter.TutorialPagerAdapter
+import ru.mrak.mafiagame.service.DataService
 
 class TutorialFragment : Fragment() {
 
@@ -36,6 +37,10 @@ class TutorialFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_tutorial, container, false)
 
+        if (DataService.tutorialShow == true) {
+            findNavController().navigate(R.id.playerListFragment)
+        }
+
         viewPager = view.findViewById(R.id.viewPager)
         finishButton = view.findViewById(R.id.finishButton)
         progessBar = view.findViewById(R.id.progressBar)
@@ -47,6 +52,7 @@ class TutorialFragment : Fragment() {
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 if (viewPager.currentItem == tutorialScreens.size - 1) {
+                    DataService.tutorialShow = true
                     findNavController().navigate(R.id.playerListFragment)
                 }
                 progessBar.progress = position
@@ -62,7 +68,7 @@ class TutorialFragment : Fragment() {
         })
 
         finishButton.setOnClickListener {
-            // Действие по завершению обучения
+            DataService.tutorialShow = true
             findNavController().navigate(R.id.playerListFragment)
         }
 

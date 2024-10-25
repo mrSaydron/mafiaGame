@@ -10,17 +10,20 @@ import android.widget.AdapterView
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.Switch
+import androidx.navigation.fragment.findNavController
 import ru.mrak.mafiagame.MainActivity.Companion.APP
 import ru.mrak.mafiagame.R
+import ru.mrak.mafiagame.service.DataService
 
 class SettingsFragment : Fragment() {
 
     private lateinit var backButton: Button
+    private lateinit var tutorialButton: Button
+
     private lateinit var languageSpinner: Spinner
     private lateinit var doctorSelfHealSwitch: Switch
     private lateinit var doctorHealSameSwitch: Switch
     private lateinit var revealRoleSwitch: Switch
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,6 +36,7 @@ class SettingsFragment : Fragment() {
         doctorSelfHealSwitch = view.findViewById(R.id.doctorSelfHealSwitch)
         doctorHealSameSwitch = view.findViewById(R.id.doctorHealSameSwitch)
         revealRoleSwitch = view.findViewById(R.id.revealRoleSwitch)
+        tutorialButton = view.findViewById(R.id.tutorialButton)
 
         backButton.setOnClickListener {
             requireActivity().onBackPressed()
@@ -56,6 +60,11 @@ class SettingsFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
         languageSpinner.visibility = View.GONE
+
+        tutorialButton.setOnClickListener {
+            DataService.tutorialShow = false
+            findNavController().navigate(R.id.tutorialFragment)
+        }
 
         return view
     }

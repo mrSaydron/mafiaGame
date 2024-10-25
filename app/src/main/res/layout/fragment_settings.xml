@@ -49,6 +49,13 @@
         android:layout_weight="1"
         />
 
+    <Button
+        android:id="@+id/tutorialButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Обучение"
+        android:layout_marginBottom="16dp"/>
+
     <!-- Информация об авторе -->
     <TextView
         android:layout_width="wrap_content"

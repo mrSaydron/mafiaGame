@@ -7,8 +7,6 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.delay
-import ru.mrak.mafiagame.MainActivity.Companion.APP
 import java.io.File
 import java.util.Locale
 

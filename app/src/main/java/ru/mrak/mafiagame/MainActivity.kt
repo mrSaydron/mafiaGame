@@ -2,6 +2,7 @@ package ru.mrak.mafiagame
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import ru.mrak.mafiagame.service.DataService
 import ru.mrak.mafiagame.service.SpeechService
 
 class MainActivity : AppCompatActivity() {
@@ -9,9 +10,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        SpeechService.initialize(this)
-
         APP = this
+
+        SpeechService.initialize(this)
+        DataService.initialize(this)
     }
 
     override fun onDestroy() {

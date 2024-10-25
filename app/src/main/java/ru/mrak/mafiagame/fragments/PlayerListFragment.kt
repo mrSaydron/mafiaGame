@@ -22,6 +22,7 @@ import ru.mrak.mafiagame.data.Player
 import ru.mrak.mafiagame.adapter.PlayerAdapter
 import ru.mrak.mafiagame.R
 import ru.mrak.mafiagame.adapter.RoleAdapter
+import ru.mrak.mafiagame.service.DataService
 import ru.mrak.mafiagame.types.RoleType
 
 class PlayerListFragment : Fragment() {
@@ -67,7 +68,7 @@ class PlayerListFragment : Fragment() {
         }
 
         startGameButton.setOnClickListener {
-            savePlayers()
+            DataService.players = players
             roleAdapter.saveRoles()
 
             assignRoles()
@@ -94,6 +95,13 @@ class PlayerListFragment : Fragment() {
         playerAdapter.notifyItemInserted(players.size - 1)
         roleAdapter.playerCount = players.size
         checkStartGameCondition()
+    }
+
+    private fun loadPlayers() {
+        removeAllPlayers()
+        DataService.players!!.forEach {
+            addPlayer(it)
+        }
     }
 
     // Удаляем игрока из списка
@@ -169,33 +177,6 @@ class PlayerListFragment : Fragment() {
             randomPlayer = players[randomIndex]
         } while (randomPlayer!!.role != RoleType.CIVILIAN)
         return randomPlayer
-    }
-
-    private fun savePlayers() {
-        val sharedPreferences = requireContext().getSharedPreferences("mafia_game", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-
-        val playersToSave: List<Player> = players.map { Player(it.name, it.avatar) }
-
-        val gson = Gson()
-        val jsonPlayers = gson.toJson(playersToSave)
-
-        editor.putString("players", jsonPlayers)
-        editor.apply()
-    }
-
-    private fun loadPlayers() {
-        val sharedPreferences = requireContext().getSharedPreferences("mafia_game", Context.MODE_PRIVATE)
-        val jsonPlayers = sharedPreferences.getString("players", null)
-
-        if (jsonPlayers != null) {
-            val gson = Gson()
-            val type = object : TypeToken<List<Player>>() {}.type
-            removeAllPlayers()
-            gson.fromJson<List<Player>>(jsonPlayers, type).forEach {
-                addPlayer(it)
-            }
-        }
     }
 
 }
