@@ -1,7 +1,8 @@
-package ru.mrak.mafiagame
+package ru.mrak.mafiagame.data
 
 import android.os.Parcel
 import android.os.Parcelable
+import ru.mrak.mafiagame.types.RoleType
 
 data class Player(
     val name: String,

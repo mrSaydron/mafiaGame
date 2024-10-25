@@ -7,7 +7,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import ru.mrak.mafiagame.Player
+import ru.mrak.mafiagame.data.Player
 import ru.mrak.mafiagame.R
 
 class PlayerAdapter(

@@ -18,11 +18,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import ru.mrak.mafiagame.Player
+import ru.mrak.mafiagame.data.Player
 import ru.mrak.mafiagame.adapter.PlayerAdapter
 import ru.mrak.mafiagame.R
 import ru.mrak.mafiagame.adapter.RoleAdapter
-import ru.mrak.mafiagame.RoleType
+import ru.mrak.mafiagame.types.RoleType
 
 class PlayerListFragment : Fragment() {
 

@@ -1,4 +1,6 @@
-package ru.mrak.mafiagame
+package ru.mrak.mafiagame.types
+
+import ru.mrak.mafiagame.R
 
 enum class RoleType(
     val iconResId: Int

@@ -2,7 +2,13 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/playerListFragment">
+    app:startDestination="@id/tutorialFragment">
+
+    <fragment
+        android:id="@+id/tutorialFragment"
+        android:name="ru.mrak.mafiagame.fragments.TutorialFragment"
+        android:label="PlayerListFragment"
+        tools:layout="@layout/fragment_tutorial" />
 
     <fragment
         android:id="@+id/playerListFragment"

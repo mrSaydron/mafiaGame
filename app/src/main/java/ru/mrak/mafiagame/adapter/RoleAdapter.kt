@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import ru.mrak.mafiagame.R
-import ru.mrak.mafiagame.Role
-import ru.mrak.mafiagame.RoleType
+import ru.mrak.mafiagame.data.Role
+import ru.mrak.mafiagame.types.RoleType
 import kotlin.math.max
 
 class RoleAdapter(private val parent: Fragment) : RecyclerView.Adapter<RoleAdapter.RoleViewHolder>() {

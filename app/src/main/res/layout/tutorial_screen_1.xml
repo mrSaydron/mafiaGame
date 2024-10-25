@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Добро пожаловать в игру 'Мафия'"
+        android:textSize="24sp"
+        android:layout_margin="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Мафия — это социальная игра, в которой игроки разделяются на мафию и мирных жителей. Задача мафии — устранить всех мирных, а мирные пытаются вычислить мафию и проголосовать за их исключение." />
+</LinearLayout>

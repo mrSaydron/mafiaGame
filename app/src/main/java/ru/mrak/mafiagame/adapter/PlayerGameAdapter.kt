@@ -6,14 +6,16 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import ru.mrak.mafiagame.Player
+import ru.mrak.mafiagame.data.Player
 import ru.mrak.mafiagame.R
-import ru.mrak.mafiagame.RoleType
+import ru.mrak.mafiagame.types.RoleType
 
-class VotingAdapter(
-    private val players: MutableList<Player>,
+class PlayerGameAdapter(
+    private val players: List<Player>,
     var onPlayerChoose: (Player) -> Unit,
-) : RecyclerView.Adapter<VotingAdapter.PlayerViewHolder>() {
+) : RecyclerView.Adapter<PlayerGameAdapter.PlayerViewHolder>() {
+
+    var acquaintancePlayer: Player? = null
 
     var showType: ShowType = ShowType.CIVILIAN
         set(value) {
@@ -40,7 +42,7 @@ class VotingAdapter(
 
     class PlayerViewHolder(
         itemView: View,
-        private val adapter: VotingAdapter
+        private val adapter: PlayerGameAdapter
     ) : RecyclerView.ViewHolder(itemView) {
         private val playerNameText: TextView = itemView.findViewById(R.id.playerNameText)
         private val playerAvatar: ImageView = itemView.findViewById(R.id.playerAvatar)
@@ -75,6 +77,11 @@ class VotingAdapter(
                 ShowType.END_GAME -> {
                     playerRole.text = player.role.toString()
                 }
+                ShowType.ACQUAINTANCE -> {
+                    if (player == adapter.acquaintancePlayer) {
+                        playerRole.text = player.role.toString()
+                    }
+                }
             }
             if (!player.isAlive) {
                 playerRole.text = player.role.toString()
@@ -91,5 +98,6 @@ class VotingAdapter(
         MAFIA,
         DOCTOR,
         END_GAME,
+        ACQUAINTANCE,
     }
 }
