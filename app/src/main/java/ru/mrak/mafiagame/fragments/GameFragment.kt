@@ -200,20 +200,22 @@ class GameFragment : Fragment() {
     private fun acquaintancePlayers() {
         lifecycleScope.launch {
             for (player in game.players) {
-                SpeechService.speak("Просыпается ${player.name}")
                 playerGameAdapter.acquaintancePlayer = player
                 playerGameAdapter.showType = PlayerGameAdapter.ShowType.ACQUAINTANCE
+                SpeechService.speakAndWait("Просыпается ${player.name}")
 
+                delay(2000)
+
+                SpeechService.speakAndWait("${player.name} засыпает")
+//                for (i in 5 downTo 1) {
+//                    if (!SpeechService.isSpeaking()) {
+//                        SpeechService.speak(i.toString())
+//                    }
+//                    gameStatusText.text = "$i"
+//                    delay(1000)
+//                }
+                playerGameAdapter.showType = PlayerGameAdapter.ShowType.CIVILIAN
                 delay(1000)
-
-                SpeechService.speak("${player.name} засыпает")
-                for (i in 5 downTo 1) {
-                    if (!SpeechService.isSpeaking()) {
-                        SpeechService.speak(i.toString())
-                    }
-                    gameStatusText.text = "$i"
-                    delay(1000)
-                }
             }
             playerGameAdapter.showType = PlayerGameAdapter.ShowType.CIVILIAN
             game.acquaintanceAlready = true
@@ -224,15 +226,15 @@ class GameFragment : Fragment() {
     private fun countDown(text: String, speakText: String) {
         lifecycleScope.launch {
             gameStatusText.text = text
-            SpeechService.speak(speakText)
-            for (i in 5 downTo 1) {
-                if (!SpeechService.isSpeaking()) {
-                    SpeechService.speak(i.toString())
-                }
-                gameStatusText.text = "$text $i"
-                delay(1000)
-            }
-
+            SpeechService.speakAndWait(speakText)
+//            for (i in 5 downTo 1) {
+//                if (!SpeechService.isSpeaking()) {
+//                    SpeechService.speak(i.toString())
+//                }
+//                gameStatusText.text = "$text $i"
+//                delay(1000)
+//            }
+            delay(2000)
             playerGameAdapter.showType = PlayerGameAdapter.ShowType.CIVILIAN
             nextPhase()
         }

@@ -54,8 +54,8 @@ class SettingsFragment : Fragment() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
-
         }
+        languageSpinner.visibility = View.GONE
 
         return view
     }

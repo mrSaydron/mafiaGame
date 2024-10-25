@@ -2,8 +2,11 @@ package ru.mrak.mafiagame.service
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.util.Log
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import ru.mrak.mafiagame.MainActivity.Companion.APP
 import java.io.File
@@ -14,6 +17,18 @@ object SpeechService {
     private var savedPhrasesCount = 0
     private var mapOfPhrases = mutableMapOf<String, File>()
     private var mediaPlayer: MediaPlayer? = null
+    private val ttsListener = object : UtteranceProgressListener() {
+
+        var callbackFunction: (() -> Unit)? = null
+
+        override fun onStart(utteranceId: String?) {}
+
+        override fun onDone(utteranceId: String?) {
+            callbackFunction?.invoke()
+        }
+
+        override fun onError(utteranceId: String?) {}
+    }
 
     fun initialize(context: Context) {
         tts = TextToSpeech(context) { status ->
@@ -50,6 +65,26 @@ object SpeechService {
                 start()
             }
         }
+    }
+
+    suspend fun speakAndWait(text: String): Boolean {
+        val completion = CompletableDeferred<Boolean>()
+        tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {}
+            override fun onDone(utteranceId: String?) {
+                completion.complete(true)
+            }
+            override fun onError(utteranceId: String?) {
+                completion.complete(false)
+            }
+        })
+
+        val params = Bundle().apply {
+            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "utteranceId")
+        }
+
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, params, "utteranceId")
+        return completion.await()
     }
 
     fun speakToQueue(text: String) {
