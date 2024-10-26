@@ -14,6 +14,7 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
@@ -47,11 +48,13 @@ class PlayerListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_player_list, container, false)
 
-        playerAdapter = PlayerAdapter(players) { player -> removePlayer(player) }
+        playerAdapter = PlayerAdapter(players)
 
         playerRecyclerView = view.findViewById(R.id.playerRecyclerView)
         playerRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         playerRecyclerView.adapter = playerAdapter
+
+        ItemTouchHelper(itemTouchHelper).attachToRecyclerView(playerRecyclerView)
 
         roleAdapter = RoleAdapter(this)
 
@@ -110,12 +113,11 @@ class PlayerListFragment : Fragment() {
         }
     }
 
-    // Удаляем игрока из списка
-    private fun removePlayer(player: Player) {
-        val index = players.indexOf(player)
+    private fun removePlayer(index: Int) {
         if (index != -1) {
             players.removeAt(index)
             playerAdapter.notifyItemRemoved(index)
+            roleAdapter.playerCount = players.size
             checkStartGameCondition()
         }
     }
@@ -187,4 +189,19 @@ class PlayerListFragment : Fragment() {
         return randomPlayer
     }
 
+    private val itemTouchHelper = object : ItemTouchHelper.SimpleCallback(
+        0, ItemTouchHelper.RIGHT
+    ) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            return false
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            removePlayer(viewHolder.bindingAdapterPosition)
+        }
+    }
 }

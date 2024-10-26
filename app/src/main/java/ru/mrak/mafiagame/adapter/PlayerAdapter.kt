@@ -12,19 +12,15 @@ import ru.mrak.mafiagame.R
 
 class PlayerAdapter(
     private val players: List<Player>,
-    private val onRemovePlayer: (Player) -> Unit
 ) : RecyclerView.Adapter<PlayerAdapter.PlayerViewHolder>() {
 
     class PlayerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val playerName: TextView = itemView.findViewById(R.id.playerNameText)
-        private val removeButton: Button = itemView.findViewById(R.id.removePlayerButton)
         private val playerAvatar: ImageView = itemView.findViewById(R.id.playerAvatar)
 
-        fun bind(player: Player, onRemovePlayer: (Player) -> Unit) {
+        fun bind(player: Player) {
             playerName.text = player.name
-            removeButton.setOnClickListener {
-                onRemovePlayer(player)
-            }
+
             val context = playerAvatar.context
             val resourceId = context.resources.getIdentifier(player.avatar, "drawable", context.packageName)
             playerAvatar.setImageResource(resourceId)
@@ -38,7 +34,7 @@ class PlayerAdapter(
 
     override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {
         val player = players[position]
-        holder.bind(player, onRemovePlayer)
+        holder.bind(player)
     }
 
     override fun getItemCount(): Int = players.size
