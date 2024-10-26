@@ -11,7 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Введите имя игрока"
-        android:inputType="text"/>
+        android:inputType="text"
+        android:maxLength="20"
+        android:maxLines="1" />
 
     <Spinner
         android:id="@+id/playerAvatarSpinner"
