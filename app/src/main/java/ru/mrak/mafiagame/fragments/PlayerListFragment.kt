@@ -189,15 +189,37 @@ class PlayerListFragment : Fragment() {
         return randomPlayer
     }
 
-    private val itemTouchHelper = object : ItemTouchHelper.SimpleCallback(
-        0, ItemTouchHelper.RIGHT
-    ) {
+    private val itemTouchHelper = object : ItemTouchHelper.Callback() {
+
+        override fun isLongPressDragEnabled(): Boolean {
+            return true
+        }
+
+        override fun isItemViewSwipeEnabled(): Boolean {
+            return false
+        }
+
+        override fun getMovementFlags(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder
+        ): Int {
+            val dragFlag = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+            val swipeFlag = ItemTouchHelper.RIGHT
+            return makeMovementFlags(dragFlag, swipeFlag)
+        }
+
         override fun onMove(
             recyclerView: RecyclerView,
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            return false
+            val player = players[viewHolder.bindingAdapterPosition]
+            players.removeAt(viewHolder.bindingAdapterPosition)
+            players.add(target.bindingAdapterPosition, player)
+
+            playerAdapter.notifyDataSetChanged()
+            checkStartGameCondition()
+            return true
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
