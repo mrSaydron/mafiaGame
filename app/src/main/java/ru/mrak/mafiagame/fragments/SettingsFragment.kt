@@ -66,6 +66,27 @@ class SettingsFragment : Fragment() {
             findNavController().navigate(R.id.tutorialFragment)
         }
 
+        val settings = DataService.settings!!
+
+        doctorSelfHealSwitch.isChecked = settings.doctorSelfHeal
+        doctorHealSameSwitch.isChecked = settings.doctorHealSame
+        revealRoleSwitch.isChecked = settings.revealRole
+
+        doctorSelfHealSwitch.setOnCheckedChangeListener { _, isChecked ->
+            settings.doctorSelfHeal = isChecked
+            DataService.settings = settings
+        }
+
+        doctorHealSameSwitch.setOnCheckedChangeListener { _, isChecked ->
+            settings.doctorHealSame = isChecked
+            DataService.settings = settings
+        }
+
+        revealRoleSwitch.setOnCheckedChangeListener { _, isChecked ->
+            settings.revealRole = isChecked
+            DataService.settings = settings
+        }
+
         return view
     }
 }

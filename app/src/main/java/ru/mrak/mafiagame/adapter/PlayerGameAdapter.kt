@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import ru.mrak.mafiagame.data.Player
 import ru.mrak.mafiagame.R
+import ru.mrak.mafiagame.service.DataService
 import ru.mrak.mafiagame.types.RoleType
 
 class PlayerGameAdapter(
@@ -83,10 +84,9 @@ class PlayerGameAdapter(
                     }
                 }
             }
-            if (!player.isAlive) {
+            if (DataService.settings!!.revealRole && !player.isAlive) {
                 playerRole.text = player.role.toString()
             }
-//            playerIsAlive.text = if (player.isAlive) "Alive" else "Dead"
             playerIsAlive.text = ""
             itemView.setBackgroundColor(if (player.isAlive) 0xFFFFFFFF.toInt() else 0xFFC0C0C0.toInt())
         }

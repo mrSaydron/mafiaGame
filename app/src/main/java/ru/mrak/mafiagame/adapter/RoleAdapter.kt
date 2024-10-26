@@ -12,6 +12,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import ru.mrak.mafiagame.R
 import ru.mrak.mafiagame.data.Role
+import ru.mrak.mafiagame.service.DataService
 import ru.mrak.mafiagame.types.RoleType
 import kotlin.math.max
 
@@ -45,23 +46,12 @@ class RoleAdapter(private val parent: Fragment) : RecyclerView.Adapter<RoleAdapt
         }
 
     fun saveRoles() {
-        val sharedPreferences = parent.requireContext().getSharedPreferences("mafia_game", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        val gson = Gson()
-        val jsonRoles = gson.toJson(roles)
-        editor.putString("roles", jsonRoles)
-        editor.apply()
+        DataService.roles = roles.toMutableList()
     }
 
     fun loadRoles() {
-        val sharedPreferences = parent.requireContext().getSharedPreferences("mafia_game", Context.MODE_PRIVATE)
-        val jsonRoles = sharedPreferences.getString("roles", null)
-        if (jsonRoles != null) {
-            val gson = Gson()
-            val type = object : TypeToken<List<Role>>() {}.type
-            roles = gson.fromJson(jsonRoles, type)
-            notifyDataSetChanged()
-        }
+        roles = DataService.roles!!
+        notifyDataSetChanged()
     }
 
     private fun getRolesCount() = roles.sumOf { it.count }

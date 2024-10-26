@@ -6,7 +6,8 @@ data class Game(
     var players: List<Player> = emptyList(),
     var acquaintanceAlready: Boolean = false,
     var currentPhaseType: PhaseType = PhaseType.START_NIGHT,
-    var mafiaChosePlayer: Player? = null,
-    var doctorChosePlayer: Player? = null,
-    var citizenChosePlayer: Player? = null,
+    var mafiaChose: Player? = null,
+    var doctorChose: Player? = null,
+    var citizenChose: Player? = null,
+    var doctorChoseLast: Player? = null,
 )

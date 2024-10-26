@@ -21,6 +21,7 @@ import ru.mrak.mafiagame.R
 import ru.mrak.mafiagame.types.RoleType
 import ru.mrak.mafiagame.adapter.PlayerGameAdapter
 import ru.mrak.mafiagame.data.Game
+import ru.mrak.mafiagame.service.DataService
 import ru.mrak.mafiagame.service.SpeechService
 
 class GameFragment : Fragment() {
@@ -137,11 +138,11 @@ class GameFragment : Fragment() {
             }
             PhaseType.NEWS -> {
                 Log.i("updateGamePhase", "NEWS")
-                val newsText = if (game.mafiaChosePlayer == game.doctorChosePlayer) {
-                    "Ночью мафия совершила попытку убийства. Но ${game.mafiaChosePlayer?.name} был вовремя спасен доктором"
+                val newsText = if (game.mafiaChose == game.doctorChose) {
+                    "Ночью мафия совершила попытку убийства. Но ${game.mafiaChose?.name} был вовремя спасен доктором"
                 } else {
-                    game.mafiaChosePlayer?.isAlive = false
-                    "Ночью мафией был убит ${game.mafiaChosePlayer?.name}. Он оставил предсмертное сообщение:"
+                    game.mafiaChose?.isAlive = false
+                    "Ночью мафией был убит ${game.mafiaChose?.name}. Он оставил предсмертное сообщение:"
                 }
                 gameStatusText.text = "Наступил день, все просыпаются. $newsText"
                 SpeechService.speak("Наступил день, все просыпаются. $newsText")
@@ -150,8 +151,8 @@ class GameFragment : Fragment() {
                 nextPhaseButton.text = "Дальше"
                 nextPhaseButton.visibility = View.VISIBLE
 
-                game.mafiaChosePlayer = null
-                game.doctorChosePlayer = null
+                game.mafiaChose = null
+                game.doctorChose = null
 
                 if (!checkWinConditionInNewsPhase()) {
                     lifecycleScope.launch {
@@ -171,11 +172,11 @@ class GameFragment : Fragment() {
             }
             PhaseType.AFTER_VOTE -> {
                 Log.i("updateGamePhase", "AFTER_VOTE")
-                gameStatusText.text = "Горожанами был выбран ${game.citizenChosePlayer?.name.toString()}. Ваше последнее слово:"
+                gameStatusText.text = "Горожанами был выбран ${game.citizenChose?.name.toString()}. Ваше последнее слово:"
                 nextPhaseButton.visibility = View.VISIBLE
                 nextPhaseButton.text = "Дальше"
 
-                SpeechService.speak("Горожанами был выбран ${game.citizenChosePlayer?.name.toString()}. Ваше последнее слово:")
+                SpeechService.speak("Горожанами был выбран ${game.citizenChose?.name.toString()}. Ваше последнее слово:")
             }
             PhaseType.END_GAME -> {
                 Log.i("updateGamePhase", "END_GAME")
@@ -207,13 +208,6 @@ class GameFragment : Fragment() {
                 delay(2000)
 
                 SpeechService.speakAndWait("${player.name} засыпает")
-//                for (i in 5 downTo 1) {
-//                    if (!SpeechService.isSpeaking()) {
-//                        SpeechService.speak(i.toString())
-//                    }
-//                    gameStatusText.text = "$i"
-//                    delay(1000)
-//                }
                 playerGameAdapter.showType = PlayerGameAdapter.ShowType.CIVILIAN
                 delay(1000)
             }
@@ -227,13 +221,6 @@ class GameFragment : Fragment() {
         lifecycleScope.launch {
             gameStatusText.text = text
             SpeechService.speakAndWait(speakText)
-//            for (i in 5 downTo 1) {
-//                if (!SpeechService.isSpeaking()) {
-//                    SpeechService.speak(i.toString())
-//                }
-//                gameStatusText.text = "$text $i"
-//                delay(1000)
-//            }
             delay(2000)
             playerGameAdapter.showType = PlayerGameAdapter.ShowType.CIVILIAN
             nextPhase()
@@ -243,8 +230,13 @@ class GameFragment : Fragment() {
     private fun doctorTreatPlayer(player: Player) {
         if (!player.isAlive) {
             Toast.makeText(activity, "Этот игрок уже мертв", Toast.LENGTH_SHORT).show()
+        } else if (!DataService.settings!!.doctorHealSame && game.doctorChoseLast == player) {
+            Toast.makeText(activity, "Нельзя лечить одного игрока дважды", Toast.LENGTH_SHORT).show()
+        } else if (!DataService.settings!!.doctorSelfHeal && getDoctor() == player) {
+            Toast.makeText(activity, "Доктор не может лечить себя самого", Toast.LENGTH_SHORT).show()
         } else {
-            game.doctorChosePlayer = player
+            game.doctorChose = player
+            game.doctorChoseLast = player
             nextPhase()
         }
     }
@@ -275,7 +267,7 @@ class GameFragment : Fragment() {
             Toast.makeText(activity, "Этот игрок уже мёртв", Toast.LENGTH_SHORT).show()
         } else {
             player.isAlive = false
-            game.citizenChosePlayer = player
+            game.citizenChose = player
             playerGameAdapter.notifyDataSetChanged()
             if (!checkWinCondition()) {
                 nextPhase()
@@ -287,7 +279,7 @@ class GameFragment : Fragment() {
         if (getMafiaCount() == 1 && player.role == RoleType.MAFIA) {
             Toast.makeText(activity, "Единственный мафиозий не может убить сам себя", Toast.LENGTH_SHORT).show()
         } else {
-            game.mafiaChosePlayer = player
+            game.mafiaChose = player
             nextPhase()
         }
     }
@@ -315,5 +307,6 @@ class GameFragment : Fragment() {
     private fun getDoctorCount() = game.players.count { it.role == RoleType.DOCTOR && it.isAlive }
     private fun getDetectiveCount() = game.players.count { it.role == RoleType.DETECTIVE && it.isAlive }
     private fun getNotCheckedDetectiveCount() = game.players.count { it.role != RoleType.DETECTIVE && it.isAlive && !it.checkedForDetective }
+    private fun getDoctor() = game.players.firstOrNull { it.role == RoleType.DOCTOR }
 
 }

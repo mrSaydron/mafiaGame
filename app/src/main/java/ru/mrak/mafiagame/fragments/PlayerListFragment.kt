@@ -68,9 +68,10 @@ class PlayerListFragment : Fragment() {
         }
 
         startGameButton.setOnClickListener {
+            resetPlayersAdditionalData()
             DataService.players = players
             roleAdapter.saveRoles()
-
+            
             assignRoles()
             val bundle = Bundle().apply {
                 putParcelableArrayList("playersList", ArrayList(players))
@@ -88,8 +89,13 @@ class PlayerListFragment : Fragment() {
         return view
     }
 
+    private fun resetPlayersAdditionalData() {
+        players.forEach {
+            it.role = RoleType.CIVILIAN
+            it.isAlive = true
+        }
+    }
 
-    // Добавляем игрока в список
     private fun addPlayer(player: Player) {
         players.add(player)
         playerAdapter.notifyItemInserted(players.size - 1)
@@ -156,6 +162,8 @@ class PlayerListFragment : Fragment() {
         val mafiaCount = roleAdapter.roles.find { it.role == RoleType.MAFIA }!!.count
         val detectiveCount = roleAdapter.roles.find { it.role == RoleType.DETECTIVE }!!.count
         val doctorCount = roleAdapter.roles.find { it.role == RoleType.DOCTOR }!!.count
+
+        players.forEach { it.role = RoleType.CIVILIAN }
 
         for (i in 0 until mafiaCount) {
             getNextRandomPlayer().role = RoleType.MAFIA
