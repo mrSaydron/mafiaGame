@@ -25,6 +25,7 @@ import ru.mrak.mafiagame.R
 import ru.mrak.mafiagame.adapter.RoleAdapter
 import ru.mrak.mafiagame.service.DataService
 import ru.mrak.mafiagame.types.RoleType
+import java.util.Collections
 
 class PlayerListFragment : Fragment() {
 
@@ -246,12 +247,10 @@ class PlayerListFragment : Fragment() {
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            val player = players[viewHolder.bindingAdapterPosition]
-            players.removeAt(viewHolder.bindingAdapterPosition)
-            players.add(target.bindingAdapterPosition, player)
-
-            playerAdapter.notifyDataSetChanged()
-            checkStartGameCondition()
+            val fromPosition = viewHolder.bindingAdapterPosition
+            val toPosition = target.bindingAdapterPosition
+            Collections.swap(players, fromPosition, toPosition)
+            playerAdapter.notifyItemMoved(fromPosition, toPosition)
             return true
         }
 
