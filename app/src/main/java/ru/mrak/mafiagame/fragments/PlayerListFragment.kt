@@ -48,7 +48,7 @@ class PlayerListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_player_list, container, false)
 
-        playerAdapter = PlayerAdapter(players)
+        playerAdapter = PlayerAdapter(players) { showEditPlayerDialog(it) }
 
         playerRecyclerView = view.findViewById(R.id.playerRecyclerView)
         playerRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -96,6 +96,7 @@ class PlayerListFragment : Fragment() {
         players.forEach {
             it.role = RoleType.CIVILIAN
             it.isAlive = true
+            it.checkedForDetective = false
         }
     }
 
@@ -134,12 +135,11 @@ class PlayerListFragment : Fragment() {
         startGameButton.isEnabled = players.size >= 4
     }
 
-    // Диалог для добавления игрока
     private fun showAddPlayerDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_player, null)
         val playerNameInput = dialogView.findViewById<EditText>(R.id.playerNameInput)
 
-        var avatarSpinner: Spinner = dialogView.findViewById(R.id.playerAvatarSpinner)
+        val avatarSpinner: Spinner = dialogView.findViewById(R.id.playerAvatarSpinner)
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, avatars)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         avatarSpinner.adapter = adapter
@@ -158,6 +158,39 @@ class PlayerListFragment : Fragment() {
             }
             .setNegativeButton("Отмена", null)
             .show()
+    }
+
+    private fun showEditPlayerDialog(player: Player) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_player, null)
+        val playerNameInput = dialogView.findViewById<EditText>(R.id.playerNameInput)
+        playerNameInput.setText(player.name)
+
+        val avatarSpinner: Spinner = dialogView.findViewById(R.id.playerAvatarSpinner)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, avatars)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        avatarSpinner.adapter = adapter
+        avatarSpinner.setSelection(avatars.indexOf(player.avatar))
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Редактирование игрока")
+            .setView(dialogView)
+            .setPositiveButton("Сохранить") { _, _ ->
+                val playerName = playerNameInput.text.toString()
+                if (playerName.isNotEmpty()) {
+                    val newPlayer = Player(playerName, avatarSpinner.selectedItem.toString())
+                    replacePlayer(player, newPlayer)
+                } else {
+                    Toast.makeText(requireContext(), "Имя не может быть пустым", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+    private fun replacePlayer(player: Player, newPlayer: Player) {
+        val index = players.indexOf(player)
+        players[index] = newPlayer
+        playerAdapter.notifyDataSetChanged()
     }
 
     private fun assignRoles() {
@@ -196,7 +229,7 @@ class PlayerListFragment : Fragment() {
         }
 
         override fun isItemViewSwipeEnabled(): Boolean {
-            return false
+            return true
         }
 
         override fun getMovementFlags(
@@ -225,5 +258,7 @@ class PlayerListFragment : Fragment() {
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             removePlayer(viewHolder.bindingAdapterPosition)
         }
+
+
     }
 }
