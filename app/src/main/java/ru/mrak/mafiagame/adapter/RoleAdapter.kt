@@ -11,32 +11,49 @@ import ru.mrak.mafiagame.R
 import ru.mrak.mafiagame.data.Role
 import ru.mrak.mafiagame.service.DataService
 import ru.mrak.mafiagame.types.RoleType
+import kotlin.math.ceil
 import kotlin.math.max
+import kotlin.math.min
 
 class RoleAdapter(private val parent: Fragment) : RecyclerView.Adapter<RoleAdapter.RoleViewHolder>() {
+
+    public var autoCount = true
 
     var roles: List<Role> = RoleType.entries.map { Role(it, 0) }
     var playerCount: Int = 0
         set(value) {
             field = value
-            if (playerCount > getRolesCount()) {
-                roles.find { it.role == RoleType.CIVILIAN }!!.count += playerCount - getRolesCount()
+
+            if (autoCount) {
+                val mafiaCount = if (value > 1) ceil(value / 4.0) else 0
+                val detectiveCount = if (value > 3) min(value / 4, 1) else 0
+                val doctorCount = if (value > 3) min(value / 4, 1) else 0
+                val civilCount = value - mafiaCount.toInt() - detectiveCount - doctorCount
+
+                roles.find { it.role == RoleType.CIVILIAN }!!.count = civilCount
+                roles.find { it.role == RoleType.MAFIA }!!.count = mafiaCount.toInt()
+                roles.find { it.role == RoleType.DETECTIVE }!!.count = detectiveCount
+                roles.find { it.role == RoleType.DOCTOR }!!.count = doctorCount
             } else {
-                roles.find { it.role == RoleType.CIVILIAN }.let {
-                    it!!.count -= getRolesCount() - playerCount
-                    it!!.count = max(it.count, 0)
-                }
-                roles.find { it.role == RoleType.MAFIA }.let {
-                    it!!.count -= getRolesCount() - playerCount
-                    it!!.count = max(it.count, 0)
-                }
-                roles.find { it.role == RoleType.DETECTIVE }.let {
-                    it!!.count -= getRolesCount() - playerCount
-                    it!!.count = max(it.count, 0)
-                }
-                roles.find { it.role == RoleType.DOCTOR }.let {
-                    it!!.count -= getRolesCount() - playerCount
-                    it!!.count = max(it.count, 0)
+                if (playerCount > getRolesCount()) {
+                    roles.find { it.role == RoleType.CIVILIAN }!!.count += playerCount - getRolesCount()
+                } else {
+                    roles.find { it.role == RoleType.CIVILIAN }.let {
+                        it!!.count -= getRolesCount() - playerCount
+                        it!!.count = max(it.count, 0)
+                    }
+                    roles.find { it.role == RoleType.MAFIA }.let {
+                        it!!.count -= getRolesCount() - playerCount
+                        it!!.count = max(it.count, 0)
+                    }
+                    roles.find { it.role == RoleType.DETECTIVE }.let {
+                        it!!.count -= getRolesCount() - playerCount
+                        it!!.count = max(it.count, 0)
+                    }
+                    roles.find { it.role == RoleType.DOCTOR }.let {
+                        it!!.count -= getRolesCount() - playerCount
+                        it!!.count = max(it.count, 0)
+                    }
                 }
             }
             notifyDataSetChanged()
