@@ -1,6 +1,5 @@
 package ru.mrak.mafiagame.adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,8 +7,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import ru.mrak.mafiagame.R
 import ru.mrak.mafiagame.data.Role
 import ru.mrak.mafiagame.service.DataService
@@ -69,25 +66,40 @@ class RoleAdapter(private val parent: Fragment) : RecyclerView.Adapter<RoleAdapt
             roleCount.text = role.count.toString()
 
             itemView.setOnClickListener {
-                if (roles.find { it.role == RoleType.CIVILIAN }!!.count > 0) {
-                    if (role.role == RoleType.DETECTIVE || role.role == RoleType.DOCTOR) {
-                        if (role.count == 0) {
+                if (role.role == RoleType.CIVILIAN) {
+                    if (roles.find { it.role == RoleType.MAFIA }!!.count > 0) {
+                        role.count++
+                        roles.find { it.role == RoleType.MAFIA }!!.count--
+                    } else if (roles.find { it.role == RoleType.DETECTIVE }!!.count > 0) {
+                        role.count++
+                        roles.find { it.role == RoleType.DETECTIVE }!!.count--
+                    } else if (roles.find { it.role == RoleType.DOCTOR }!!.count > 0) {
+                        role.count++
+                        roles.find { it.role == RoleType.DOCTOR }!!.count--
+                    }
+                    roleCount.text = role.count.toString()
+                    onClickListener()
+                } else {
+                    if (roles.find { it.role == RoleType.CIVILIAN }!!.count > 0) {
+                        if (role.role == RoleType.DETECTIVE || role.role == RoleType.DOCTOR) {
+                            if (role.count == 0) {
+                                role.count++
+                                roles.find { it.role == RoleType.CIVILIAN }!!.count--
+                            } else {
+                                role.count = 0
+                                roles.find { it.role == RoleType.CIVILIAN }!!.count++
+                            }
+                        } else {
                             role.count++
                             roles.find { it.role == RoleType.CIVILIAN }!!.count--
-                        } else {
-                            role.count = 0
-                            roles.find { it.role == RoleType.CIVILIAN }!!.count++
                         }
                     } else {
-                        role.count++
-                        roles.find { it.role == RoleType.CIVILIAN }!!.count--
+                        roles.find { it.role == RoleType.CIVILIAN }!!.count += role.count
+                        role.count = 0
                     }
-                } else {
-                    roles.find { it.role == RoleType.CIVILIAN }!!.count += role.count
-                    role.count = 0
+                    roleCount.text = role.count.toString()
+                    onClickListener()
                 }
-                roleCount.text = role.count.toString()
-                onClickListener()
             }
         }
     }

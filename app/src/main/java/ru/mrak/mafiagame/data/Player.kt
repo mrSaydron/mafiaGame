@@ -6,20 +6,20 @@ import ru.mrak.mafiagame.types.RoleType
 
 data class Player(
     val name: String,
-    val avatar: String,
+    val avatarId: Int,
     var role: RoleType = RoleType.CIVILIAN,
     var isAlive: Boolean = true,
     var checkedForDetective: Boolean = false,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
-        parcel.readString() ?: "",
+        parcel.readInt(),
         RoleType.valueOf(parcel.readString() ?: RoleType.CIVILIAN.name)
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(name)
-        parcel.writeString(avatar)
+        parcel.writeInt(avatarId)
         parcel.writeString(role.name)
     }
 

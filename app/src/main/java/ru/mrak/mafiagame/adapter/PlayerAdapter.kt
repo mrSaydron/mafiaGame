@@ -3,7 +3,6 @@ package ru.mrak.mafiagame.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -34,9 +33,7 @@ class PlayerAdapter(
         fun bind(player: Player, onPlayerClickListener: (Player) -> Unit) {
             playerName.text = player.name
 
-            val context = playerAvatar.context
-            val resourceId = context.resources.getIdentifier(player.avatar, "drawable", context.packageName)
-            playerAvatar.setImageResource(resourceId)
+            playerAvatar.setImageResource(player.avatarId)
 
             itemView.setOnClickListener {
                 onPlayerClickListener(player)

@@ -22,6 +22,7 @@ import com.google.gson.reflect.TypeToken
 import ru.mrak.mafiagame.data.Player
 import ru.mrak.mafiagame.adapter.PlayerAdapter
 import ru.mrak.mafiagame.R
+import ru.mrak.mafiagame.adapter.AvatarAdapter
 import ru.mrak.mafiagame.adapter.RoleAdapter
 import ru.mrak.mafiagame.service.DataService
 import ru.mrak.mafiagame.types.RoleType
@@ -41,7 +42,15 @@ class PlayerListFragment : Fragment() {
 
 
     private val players = mutableListOf<Player>()
-    private val avatars = listOf("avatar_1", "avatar_2", "avatar_3", "avatar_4", "avatar_5", "avatar_6", "avatar_7")
+    private val avatars = listOf(
+        R.drawable.avatar_1,
+        R.drawable.avatar_2,
+        R.drawable.avatar_3,
+        R.drawable.avatar_4,
+        R.drawable.avatar_5,
+        R.drawable.avatar_6,
+        R.drawable.avatar_7
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -137,24 +146,45 @@ class PlayerListFragment : Fragment() {
     }
 
     private fun showAddPlayerDialog() {
+        var avatarId: Int? = null
+
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_player, null)
         val playerNameInput = dialogView.findViewById<EditText>(R.id.playerNameInput)
+        val avatarImageView = dialogView.findViewById<ImageView>(R.id.avatarImageView)
+        avatarImageView.visibility = View.GONE
 
-        val avatarSpinner: Spinner = dialogView.findViewById(R.id.playerAvatarSpinner)
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, avatars)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        avatarSpinner.adapter = adapter
+        val recyclerView = dialogView.findViewById<RecyclerView>(R.id.avatarRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+
+        val usingAvatars = players.map { it.avatarId }.toSet()
+        val leftAvatars = avatars.filter { !usingAvatars.contains(it) }
+
+        val avatarAdapter = AvatarAdapter(leftAvatars) { selectedAvatarResId ->
+            avatarImageView.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+            avatarImageView.setImageResource(selectedAvatarResId)
+            avatarId = selectedAvatarResId
+        }
+        recyclerView.adapter = avatarAdapter
+
+        avatarImageView.setOnClickListener {
+            avatarImageView.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
+            avatarId = null
+        }
 
         AlertDialog.Builder(requireContext())
             .setTitle("Добавить игрока")
             .setView(dialogView)
             .setPositiveButton("Добавить") { _, _ ->
                 val playerName = playerNameInput.text.toString()
-                if (playerName.isNotEmpty()) {
-                    val player = Player(playerName, avatarSpinner.selectedItem.toString())
-                    addPlayer(player)
-                } else {
+                if (playerName.isEmpty()) {
                     Toast.makeText(requireContext(), "Имя не может быть пустым", Toast.LENGTH_SHORT).show()
+                } else if (avatarId == null) {
+                    Toast.makeText(requireContext(), "Выберите аватарку", Toast.LENGTH_SHORT).show()
+                } else {
+                    val player = Player(playerName, avatarId!!)
+                    addPlayer(player)
                 }
             }
             .setNegativeButton("Отмена", null)
@@ -162,26 +192,48 @@ class PlayerListFragment : Fragment() {
     }
 
     private fun showEditPlayerDialog(player: Player) {
+        var avatarId: Int? = player.avatarId
+
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_player, null)
         val playerNameInput = dialogView.findViewById<EditText>(R.id.playerNameInput)
         playerNameInput.setText(player.name)
 
-        val avatarSpinner: Spinner = dialogView.findViewById(R.id.playerAvatarSpinner)
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, avatars)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        avatarSpinner.adapter = adapter
-        avatarSpinner.setSelection(avatars.indexOf(player.avatar))
+        val avatarImageView = dialogView.findViewById<ImageView>(R.id.avatarImageView)
+        avatarImageView.setImageResource(avatarId ?: 0)
+
+        val recyclerView = dialogView.findViewById<RecyclerView>(R.id.avatarRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+
+        val usingAvatars = players.map { it.avatarId }.toSet()
+        val leftAvatars = avatars.filter { !usingAvatars.contains(it) || it == player.avatarId}
+
+        val avatarAdapter = AvatarAdapter(leftAvatars) { selectedAvatarResId ->
+            avatarImageView.visibility = View.VISIBLE
+            recyclerView.visibility = View.GONE
+            avatarImageView.setImageResource(selectedAvatarResId)
+            avatarId = selectedAvatarResId
+        }
+        recyclerView.adapter = avatarAdapter
+        recyclerView.visibility = View.GONE
+
+        avatarImageView.setOnClickListener {
+            avatarImageView.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
+            avatarId = null
+        }
 
         AlertDialog.Builder(requireContext())
             .setTitle("Редактирование игрока")
             .setView(dialogView)
             .setPositiveButton("Сохранить") { _, _ ->
                 val playerName = playerNameInput.text.toString()
-                if (playerName.isNotEmpty()) {
-                    val newPlayer = Player(playerName, avatarSpinner.selectedItem.toString())
-                    replacePlayer(player, newPlayer)
-                } else {
+                if (playerName.isEmpty()) {
                     Toast.makeText(requireContext(), "Имя не может быть пустым", Toast.LENGTH_SHORT).show()
+                } else if (avatarId == null) {
+                    Toast.makeText(requireContext(), "Выберите аватарку", Toast.LENGTH_SHORT).show()
+                } else {
+                    val newPlayer = Player(playerName, avatarId!!)
+                    replacePlayer(player, newPlayer)
                 }
             }
             .setNegativeButton("Отмена", null)

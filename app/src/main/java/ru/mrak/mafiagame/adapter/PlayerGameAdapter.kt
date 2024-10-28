@@ -53,10 +53,7 @@ class PlayerGameAdapter(
         fun bind(player: Player) {
             playerNameText.text = player.name
 
-            // Загружаем аватар игрока
-            val context = playerAvatar.context
-            val resourceId = context.resources.getIdentifier(player.avatar, "drawable", context.packageName)
-            playerAvatar.setImageResource(resourceId)
+            playerAvatar.setImageResource(player.avatarId)
             playerRole.text = ""
             when (adapter.showType) {
                 ShowType.CIVILIAN -> {}

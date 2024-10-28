@@ -36,7 +36,7 @@ object DataService {
         set(value) {
             field = value
             value?.let {
-                val playersToSave: List<Player> = it.map { player -> Player(player.name, player.avatar) }
+                val playersToSave: List<Player> = it.map { player -> Player(player.name, player.avatarId) }
                 val jsonPlayers = gson.toJson(playersToSave)
                 editor.putString("players", jsonPlayers).apply()
             } ?: {
