@@ -6,16 +6,14 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Кнопка для возврата на экран игроков -->
     <Button
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Back" />
+        android:text="Назад" />
 
-    <!-- Настройки игры -->
     <TextView
-        android:text="Game Settings"
+        android:text="Настройки"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"/>
 
@@ -23,25 +21,26 @@
         android:id="@+id/languageSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:entries="@array/languages_array" />
+        android:entries="@array/languages_array"
+        android:visibility="gone"/>
 
     <Switch
         android:id="@+id/doctorSelfHealSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Doctor can heal self" />
+        android:text="Доктор может лечить сам себя" />
 
     <Switch
         android:id="@+id/doctorHealSameSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Doctor can heal same player consecutively" />
+        android:text="Доктор может лечить одного игрока подряд" />
 
     <Switch
         android:id="@+id/revealRoleSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Reveal role after death" />
+        android:text="Показывать роли после смерти" />
 
     <Space
         android:layout_width="match_parent"
@@ -56,15 +55,16 @@
         android:text="Обучение"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Информация об авторе -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Created by [Your Name]" />
+        android:text="Сделано mrSaydron"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Contact: your.email@example.com" />
+        android:text="Контакты: mrsaydron@gmail.com"
+        android:visibility="gone"/>
 
 </LinearLayout>
