@@ -56,7 +56,7 @@ class PlayerListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_player_list, container, false)
 
-        roleAdapter = RoleAdapter(this)
+        roleAdapter = RoleAdapter()
 
         rolesRecyclerView = view.findViewById(R.id.rolesRecyclerView)
         rolesRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -84,7 +84,6 @@ class PlayerListFragment : Fragment() {
 
         startGameButton.setOnClickListener {
             playerAdapter.resetPlayersAdditionalData()
-            roleAdapter.saveRoles()
             
             assignRoles(playerAdapter.players)
             val bundle = Bundle().apply {
@@ -96,8 +95,6 @@ class PlayerListFragment : Fragment() {
         settingsButton.setOnClickListener {
             Navigation.findNavController(view).navigate(R.id.settingsFragment)
         }
-
-        roleAdapter.loadRoles()
 
         checkStartGameCondition(playerAdapter.players)
 

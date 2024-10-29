@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import ru.mrak.mafiagame.R
 import ru.mrak.mafiagame.data.Role
@@ -15,11 +14,11 @@ import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
-class RoleAdapter(private val parent: Fragment) : RecyclerView.Adapter<RoleAdapter.RoleViewHolder>() {
+class RoleAdapter : RecyclerView.Adapter<RoleAdapter.RoleViewHolder>() {
 
     public var autoCount = true
 
-    var roles: List<Role> = RoleType.entries.map { Role(it, 0) }
+    var roles: MutableList<Role> = DataService.roles ?: RoleType.entries.map { Role(it, 0) }.toMutableList()
     var playerCount: Int = 0
         set(value) {
             field = value
@@ -56,23 +55,15 @@ class RoleAdapter(private val parent: Fragment) : RecyclerView.Adapter<RoleAdapt
                     }
                 }
             }
+            DataService.roles = roles
             notifyDataSetChanged()
         }
-
-    fun saveRoles() {
-        DataService.roles = roles.toMutableList()
-    }
-
-    fun loadRoles() {
-        roles = DataService.roles!!
-        notifyDataSetChanged()
-    }
 
     private fun getRolesCount() = roles.sumOf { it.count }
 
     class RoleViewHolder(
         itemView: View,
-        private val roles: List<Role>,
+        private val roles: MutableList<Role>,
         private val onClickListener: () -> Unit
     ) : RecyclerView.ViewHolder(itemView) {
         private val roleIcon: ImageView = itemView.findViewById(R.id.roleIcon)
@@ -117,6 +108,7 @@ class RoleAdapter(private val parent: Fragment) : RecyclerView.Adapter<RoleAdapt
                     roleCount.text = role.count.toString()
                     onClickListener()
                 }
+                DataService.roles = roles
             }
         }
     }

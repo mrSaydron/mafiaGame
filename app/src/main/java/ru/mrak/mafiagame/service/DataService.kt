@@ -71,9 +71,8 @@ object DataService {
         get() {
             if (field == null) {
                 val json = sharedPreferences.getString("roles", null)
-
-                field = mutableListOf()
                 if (json != null) {
+                    field = mutableListOf()
                     val type = object : TypeToken<List<Role>>() {}.type
                     gson.fromJson<List<Role>>(json, type).forEach {
                         field!!.add(it)
