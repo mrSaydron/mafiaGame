@@ -53,16 +53,7 @@ object SpeechService {
     }
 
     fun speak(text: String) {
-        if (!mapOfPhrases.containsKey(text)) {
-            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
-        } else {
-            mediaPlayer?.apply {
-                reset()
-                setDataSource(mapOfPhrases[text]!!.path)
-                prepare()
-                start()
-            }
-        }
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 
     suspend fun speakAndWait(text: String): Boolean {

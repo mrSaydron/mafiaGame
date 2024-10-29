@@ -40,8 +40,6 @@ class PlayerListFragment : Fragment() {
     private lateinit var roleAdapter: RoleAdapter
     private lateinit var rolesRecyclerView: RecyclerView
 
-
-    private val players = mutableListOf<Player>()
     private val avatars = listOf(
         R.drawable.avatar_1,
         R.drawable.avatar_2,
@@ -58,19 +56,23 @@ class PlayerListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_player_list, container, false)
 
-        playerAdapter = PlayerAdapter(players) { showEditPlayerDialog(it) }
-
-        playerRecyclerView = view.findViewById(R.id.playerRecyclerView)
-        playerRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        playerRecyclerView.adapter = playerAdapter
-
-        ItemTouchHelper(itemTouchHelper).attachToRecyclerView(playerRecyclerView)
-
         roleAdapter = RoleAdapter(this)
 
         rolesRecyclerView = view.findViewById(R.id.rolesRecyclerView)
         rolesRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rolesRecyclerView.adapter = roleAdapter
+
+        playerAdapter = PlayerAdapter(
+            { showEditPlayerDialog(it) },
+            {
+                roleAdapter.playerCount = it.size
+                checkStartGameCondition(it)
+            }
+        )
+        playerRecyclerView = view.findViewById(R.id.playerRecyclerView)
+        playerRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        playerRecyclerView.adapter = playerAdapter
+        ItemTouchHelper(playerAdapter.itemTouchHelper).attachToRecyclerView(playerRecyclerView)
 
         addPlayerButton = view.findViewById(R.id.addPlayerButton)
         startGameButton = view.findViewById(R.id.startGameButton)
@@ -81,13 +83,12 @@ class PlayerListFragment : Fragment() {
         }
 
         startGameButton.setOnClickListener {
-            resetPlayersAdditionalData()
-            DataService.players = players
+            playerAdapter.resetPlayersAdditionalData()
             roleAdapter.saveRoles()
             
-            assignRoles()
+            assignRoles(playerAdapter.players)
             val bundle = Bundle().apply {
-                putParcelableArrayList("playersList", ArrayList(players))
+                putParcelableArrayList("playersList", ArrayList(playerAdapter.players))
             }
             Navigation.findNavController(view).navigate(R.id.gameFragment, bundle)
         }
@@ -96,52 +97,15 @@ class PlayerListFragment : Fragment() {
             Navigation.findNavController(view).navigate(R.id.settingsFragment)
         }
 
-        loadPlayers()
         roleAdapter.loadRoles()
+
+        checkStartGameCondition(playerAdapter.players)
 
         return view
     }
 
-    private fun resetPlayersAdditionalData() {
-        players.forEach {
-            it.role = RoleType.CIVILIAN
-            it.isAlive = true
-            it.checkedForDetective = false
-        }
-    }
-
-    private fun addPlayer(player: Player) {
-        players.add(player)
-        playerAdapter.notifyItemInserted(players.size - 1)
-        roleAdapter.playerCount = players.size
-        checkStartGameCondition()
-    }
-
-    private fun loadPlayers() {
-        removeAllPlayers()
-        DataService.players!!.forEach {
-            addPlayer(it)
-        }
-    }
-
-    private fun removePlayer(index: Int) {
-        if (index != -1) {
-            players.removeAt(index)
-            playerAdapter.notifyItemRemoved(index)
-            roleAdapter.playerCount = players.size
-            checkStartGameCondition()
-        }
-    }
-
-    private fun removeAllPlayers() {
-        playerAdapter.notifyItemRangeRemoved(0, players.size)
-        players.clear()
-        roleAdapter.playerCount = 0
-        checkStartGameCondition()
-    }
-
     // Проверяем количество игроков для активации кнопки "Начать игру"
-    private fun checkStartGameCondition() {
+    private fun checkStartGameCondition(players: List<Player>) {
         startGameButton.isEnabled = players.size >= 4
     }
 
@@ -156,7 +120,7 @@ class PlayerListFragment : Fragment() {
         val recyclerView = dialogView.findViewById<RecyclerView>(R.id.avatarRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
-        val usingAvatars = players.map { it.avatarId }.toSet()
+        val usingAvatars = playerAdapter.players.map { it.avatarId }.toSet()
         val leftAvatars = avatars.filter { !usingAvatars.contains(it) }
 
         val avatarAdapter = AvatarAdapter(leftAvatars) { selectedAvatarResId ->
@@ -184,7 +148,7 @@ class PlayerListFragment : Fragment() {
                     Toast.makeText(requireContext(), "Выберите аватарку", Toast.LENGTH_SHORT).show()
                 } else {
                     val player = Player(playerName, avatarId!!)
-                    addPlayer(player)
+                    playerAdapter.addPlayer(player)
                 }
             }
             .setNegativeButton("Отмена", null)
@@ -204,7 +168,7 @@ class PlayerListFragment : Fragment() {
         val recyclerView = dialogView.findViewById<RecyclerView>(R.id.avatarRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
-        val usingAvatars = players.map { it.avatarId }.toSet()
+        val usingAvatars = playerAdapter.players.map { it.avatarId }.toSet()
         val leftAvatars = avatars.filter { !usingAvatars.contains(it) || it == player.avatarId}
 
         val avatarAdapter = AvatarAdapter(leftAvatars) { selectedAvatarResId ->
@@ -233,20 +197,14 @@ class PlayerListFragment : Fragment() {
                     Toast.makeText(requireContext(), "Выберите аватарку", Toast.LENGTH_SHORT).show()
                 } else {
                     val newPlayer = Player(playerName, avatarId!!)
-                    replacePlayer(player, newPlayer)
+                    playerAdapter.replacePlayer(player, newPlayer)
                 }
             }
             .setNegativeButton("Отмена", null)
             .show()
     }
 
-    private fun replacePlayer(player: Player, newPlayer: Player) {
-        val index = players.indexOf(player)
-        players[index] = newPlayer
-        playerAdapter.notifyDataSetChanged()
-    }
-
-    private fun assignRoles() {
+    private fun assignRoles(players: List<Player>) {
         val mafiaCount = roleAdapter.roles.find { it.role == RoleType.MAFIA }!!.count
         val detectiveCount = roleAdapter.roles.find { it.role == RoleType.DETECTIVE }!!.count
         val doctorCount = roleAdapter.roles.find { it.role == RoleType.DOCTOR }!!.count
@@ -254,62 +212,25 @@ class PlayerListFragment : Fragment() {
         players.forEach { it.role = RoleType.CIVILIAN }
 
         for (i in 0 until mafiaCount) {
-            getNextRandomPlayer().role = RoleType.MAFIA
+            getNextRandomPlayer(players).role = RoleType.MAFIA
         }
         for (i in 0 until detectiveCount) {
-            val player = getNextRandomPlayer()
+            val player = getNextRandomPlayer(players)
             player.role = RoleType.DETECTIVE
             player.checkedForDetective = true
         }
         for (i in 0 until doctorCount) {
-            getNextRandomPlayer().role = RoleType.DOCTOR
+            getNextRandomPlayer(players).role = RoleType.DOCTOR
         }
     }
 
-    private fun getNextRandomPlayer(): Player {
+    private fun getNextRandomPlayer(players: List<Player>): Player {
         var randomPlayer: Player?
         do {
-            val randomIndex = (0 until players.size).random()
-            randomPlayer = players[randomIndex]
+            randomPlayer = players.random()
         } while (randomPlayer!!.role != RoleType.CIVILIAN)
         return randomPlayer
     }
 
-    private val itemTouchHelper = object : ItemTouchHelper.Callback() {
 
-        override fun isLongPressDragEnabled(): Boolean {
-            return true
-        }
-
-        override fun isItemViewSwipeEnabled(): Boolean {
-            return true
-        }
-
-        override fun getMovementFlags(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder
-        ): Int {
-            val dragFlag = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-            val swipeFlag = ItemTouchHelper.RIGHT
-            return makeMovementFlags(dragFlag, swipeFlag)
-        }
-
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder
-        ): Boolean {
-            val fromPosition = viewHolder.bindingAdapterPosition
-            val toPosition = target.bindingAdapterPosition
-            Collections.swap(players, fromPosition, toPosition)
-            playerAdapter.notifyItemMoved(fromPosition, toPosition)
-            return true
-        }
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            removePlayer(viewHolder.bindingAdapterPosition)
-        }
-
-
-    }
 }
