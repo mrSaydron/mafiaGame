@@ -139,7 +139,11 @@ class GameFragment : Fragment() {
             PhaseType.NEWS -> {
                 Log.i("updateGamePhase", "NEWS")
                 val newsText = if (game.mafiaChose == game.doctorChose) {
-                    "Ночью мафия совершила попытку убийства. Но игрок ${game.mafiaChose?.name} был вовремя спасен доктором"
+                    if (DataService.settings?.showSavedPlayer == true) {
+                        "Ночью мафия совершила попытку убийства. Но игрок ${game.mafiaChose?.name} был вовремя спасен доктором"
+                    } else {
+                        "Ночью мафия совершила попытку убийства. Но игрок был вовремя спасен доктором"
+                    }
                 } else {
                     game.mafiaChose?.isAlive = false
                     "Ночью мафией был убит игрок: ${game.mafiaChose?.name}. Игрок оставил предсмертное сообщение:"

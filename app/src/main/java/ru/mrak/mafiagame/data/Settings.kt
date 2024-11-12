@@ -5,4 +5,5 @@ data class Settings(
     var doctorSelfHeal: Boolean = true,
     var doctorHealSame: Boolean = true,
     var revealRole: Boolean = false,
+    var showSavedPlayer: Boolean = false,
 )

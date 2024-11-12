@@ -37,6 +37,12 @@
         android:text="Доктор может лечить одного игрока подряд" />
 
     <Switch
+        android:id="@+id/showSavedPlayerSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Показывать на кого было совершено неудачное покушение" />
+
+    <Switch
         android:id="@+id/revealRoleSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

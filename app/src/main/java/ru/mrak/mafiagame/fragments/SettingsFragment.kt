@@ -10,6 +10,7 @@ import android.widget.AdapterView
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.Switch
+import androidx.appcompat.widget.SwitchCompat
 import androidx.navigation.fragment.findNavController
 import ru.mrak.mafiagame.MainActivity.Companion.APP
 import ru.mrak.mafiagame.R
@@ -21,9 +22,10 @@ class SettingsFragment : Fragment() {
     private lateinit var tutorialButton: Button
 
     private lateinit var languageSpinner: Spinner
-    private lateinit var doctorSelfHealSwitch: Switch
-    private lateinit var doctorHealSameSwitch: Switch
-    private lateinit var revealRoleSwitch: Switch
+    private lateinit var doctorSelfHealSwitch: SwitchCompat
+    private lateinit var doctorHealSameSwitch: SwitchCompat
+    private lateinit var revealRoleSwitch: SwitchCompat
+    private lateinit var showSavedPlayerSwitch: SwitchCompat
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +39,7 @@ class SettingsFragment : Fragment() {
         doctorHealSameSwitch = view.findViewById(R.id.doctorHealSameSwitch)
         revealRoleSwitch = view.findViewById(R.id.revealRoleSwitch)
         tutorialButton = view.findViewById(R.id.tutorialButton)
+        showSavedPlayerSwitch = view.findViewById(R.id.showSavedPlayerSwitch)
 
         backButton.setOnClickListener {
             requireActivity().onBackPressed()
@@ -84,6 +87,12 @@ class SettingsFragment : Fragment() {
 
         revealRoleSwitch.setOnCheckedChangeListener { _, isChecked ->
             settings.revealRole = isChecked
+            DataService.settings = settings
+        }
+
+        showSavedPlayerSwitch.isChecked = settings.showSavedPlayer
+        showSavedPlayerSwitch.setOnCheckedChangeListener { _, isChecked ->
+            settings.showSavedPlayer = isChecked
             DataService.settings = settings
         }
 
