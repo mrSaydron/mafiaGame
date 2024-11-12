@@ -9,6 +9,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.addCallback
+import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -53,6 +56,17 @@ class GameFragment : Fragment() {
 
         nextPhaseButton.setOnClickListener {
             nextPhase()
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Предупреждение")
+                .setMessage("Вы уверены, что хотите закончить игру?")
+                .setPositiveButton("Да") { _, _ ->
+                    findNavController().navigateUp()
+                }
+                .setNegativeButton("Нет", null)
+                .show()
         }
 
         // Инициализация первой фазы
