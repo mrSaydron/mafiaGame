@@ -1,5 +1,6 @@
 package ru.mrak.mafiagame.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -106,7 +107,11 @@ class PlayerAdapter(
         fun bind(player: Player, onPlayerClickListener: (Player) -> Unit) {
             playerName.text = player.name
 
-            playerAvatar.setImageResource(player.avatarId)
+            try {
+                playerAvatar.setImageResource(player.avatarId)
+            } catch (e: Exception) {
+                Log.w("PlayerAdapter", "Avatar not found: ${player.avatarId}")
+            }
 
             itemView.setOnClickListener {
                 onPlayerClickListener(player)

@@ -1,32 +1,25 @@
 package ru.mrak.mafiagame.fragments
 
-import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import ru.mrak.mafiagame.data.Player
 import ru.mrak.mafiagame.adapter.PlayerAdapter
 import ru.mrak.mafiagame.R
 import ru.mrak.mafiagame.adapter.AvatarAdapter
 import ru.mrak.mafiagame.adapter.RoleAdapter
-import ru.mrak.mafiagame.service.DataService
 import ru.mrak.mafiagame.types.RoleType
-import java.util.Collections
 
 class PlayerListFragment : Fragment() {
 
@@ -40,21 +33,19 @@ class PlayerListFragment : Fragment() {
     private lateinit var roleAdapter: RoleAdapter
     private lateinit var rolesRecyclerView: RecyclerView
 
-    private val avatars = listOf(
-        R.drawable.avatar_1,
-        R.drawable.avatar_2,
-        R.drawable.avatar_3,
-        R.drawable.avatar_4,
-        R.drawable.avatar_5,
-        R.drawable.avatar_6,
-        R.drawable.avatar_7
-    )
+    private val avatars: MutableList<Int> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_player_list, container, false)
+
+        for (field in R.drawable::class.java.fields) {
+            if (field.name.startsWith("avatar")) {
+                avatars.add(field.getInt(null))
+            }
+        }
 
         roleAdapter = RoleAdapter()
 
@@ -141,7 +132,7 @@ class PlayerListFragment : Fragment() {
                 val playerName = playerNameInput.text.toString()
                 if (playerName.isEmpty()) {
                     Toast.makeText(requireContext(), "Имя не может быть пустым", Toast.LENGTH_SHORT).show()
-                } else if (playerAdapter.players.map { it.name }.contains(playerName)) {
+                } else if (playerAdapter.players.map { it.name.uppercase() }.contains(playerName.uppercase())) {
                     Toast.makeText(requireContext(), "Такое имя уже есть", Toast.LENGTH_SHORT).show()
                 } else if (avatarId == null) {
                     Toast.makeText(requireContext(), "Выберите аватарку", Toast.LENGTH_SHORT).show()
@@ -192,7 +183,7 @@ class PlayerListFragment : Fragment() {
                 val playerName = playerNameInput.text.toString()
                 if (playerName.isEmpty()) {
                     Toast.makeText(requireContext(), "Имя не может быть пустым", Toast.LENGTH_SHORT).show()
-                } else if (playerAdapter.players.map { it.name }.contains(playerName)) {
+                } else if (playerAdapter.players.map { it.name.uppercase() }.contains(playerName.uppercase())) {
                     Toast.makeText(requireContext(), "Такое имя уже есть", Toast.LENGTH_SHORT).show()
                 } else if (avatarId == null) {
                     Toast.makeText(requireContext(), "Выберите аватарку", Toast.LENGTH_SHORT).show()
