@@ -141,6 +141,8 @@ class PlayerListFragment : Fragment() {
                 val playerName = playerNameInput.text.toString()
                 if (playerName.isEmpty()) {
                     Toast.makeText(requireContext(), "Имя не может быть пустым", Toast.LENGTH_SHORT).show()
+                } else if (playerAdapter.players.map { it.name }.contains(playerName)) {
+                    Toast.makeText(requireContext(), "Такое имя уже есть", Toast.LENGTH_SHORT).show()
                 } else if (avatarId == null) {
                     Toast.makeText(requireContext(), "Выберите аватарку", Toast.LENGTH_SHORT).show()
                 } else {
@@ -190,6 +192,8 @@ class PlayerListFragment : Fragment() {
                 val playerName = playerNameInput.text.toString()
                 if (playerName.isEmpty()) {
                     Toast.makeText(requireContext(), "Имя не может быть пустым", Toast.LENGTH_SHORT).show()
+                } else if (playerAdapter.players.map { it.name }.contains(playerName)) {
+                    Toast.makeText(requireContext(), "Такое имя уже есть", Toast.LENGTH_SHORT).show()
                 } else if (avatarId == null) {
                     Toast.makeText(requireContext(), "Выберите аватарку", Toast.LENGTH_SHORT).show()
                 } else {
