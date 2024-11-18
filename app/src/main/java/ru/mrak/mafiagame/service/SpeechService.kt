@@ -80,8 +80,8 @@ object SpeechService {
         tts?.speak(text, TextToSpeech.QUEUE_ADD, null, null)
     }
 
-    fun shutdown() {
-        tts?.shutdown()
+    fun stop() {
+        tts?.stop()
     }
 
     fun isSpeaking(): Boolean {

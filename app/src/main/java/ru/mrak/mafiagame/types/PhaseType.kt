@@ -8,7 +8,7 @@ enum class PhaseType(
 ) {
     START_GAME({ false }),
     START_NIGHT({ true }),
-    ACQUAINTANCE({ !it.acquaintanceAlready }),
+    INTRODUCE({ !it.acquaintanceAlready }),
     MAFIA({ it.players.count{ player -> player.role == RoleType.MAFIA && player.isAlive } > 0 }),
     END_MAFIA({ it.players.count{ player -> player.role == RoleType.MAFIA && player.isAlive } > 0 }),
     DOCTOR({ it.players.count { player -> player.role == RoleType.DOCTOR && player.isAlive } > 0 }),
@@ -24,8 +24,8 @@ enum class PhaseType(
     companion object {
         init {
             START_GAME.nextPhaseType = START_NIGHT
-            START_NIGHT.nextPhaseType = ACQUAINTANCE
-            ACQUAINTANCE.nextPhaseType = MAFIA
+            START_NIGHT.nextPhaseType = INTRODUCE
+            INTRODUCE.nextPhaseType = MAFIA
             MAFIA.nextPhaseType = END_MAFIA
             END_MAFIA.nextPhaseType = DOCTOR
             DOCTOR.nextPhaseType = END_DOCTOR

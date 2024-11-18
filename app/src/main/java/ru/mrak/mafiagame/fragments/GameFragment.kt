@@ -11,11 +11,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.mrak.mafiagame.types.PhaseType
@@ -35,6 +35,7 @@ class GameFragment : Fragment() {
     private lateinit var playersRecyclerView: RecyclerView
 
     private val game: Game = Game()
+    private var asyncPhase: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,6 +64,8 @@ class GameFragment : Fragment() {
                 .setTitle("Предупреждение")
                 .setMessage("Вы уверены, что хотите закончить игру?")
                 .setPositiveButton("Да") { _, _ ->
+                    asyncPhase?.cancel()
+                    SpeechService.stop()
                     findNavController().navigateUp()
                 }
                 .setNegativeButton("Нет", null)
@@ -90,10 +93,10 @@ class GameFragment : Fragment() {
 
                 countDown("Ночь начинается, все засыпают...", "Ночь начинается, все засыпают")
             }
-            PhaseType.ACQUAINTANCE -> {
-                Log.i("updateGamePhase", "ACQUAINTANCE")
+            PhaseType.INTRODUCE -> {
+                Log.i("updateGamePhase", "INTRODUCE")
                 gameStatusText.text = "Давайте знакомиться"
-                acquaintancePlayers()
+                introducePlayers()
             }
             PhaseType.MAFIA -> {
                 Log.i("updateGamePhase", "MAFIA")
@@ -216,8 +219,8 @@ class GameFragment : Fragment() {
         }
     }
 
-    private fun acquaintancePlayers() {
-        lifecycleScope.launch {
+    private fun introducePlayers() {
+        asyncPhase = lifecycleScope.launch {
             for (player in game.players) {
                 playerGameAdapter.acquaintancePlayer = player
                 playerGameAdapter.showType = PlayerGameAdapter.ShowType.ACQUAINTANCE
